@@ -4,7 +4,7 @@ export default function Page() {
   return (
     <section>
       <h1 className="mb-8 text-2xl font-semibold tracking-tighter">
-        My Portfolio
+        Paarth Rajpal
       </h1>
       <p className="mb-4">
         {`I’m a student developer exploring computer vision, robotics, and AI — and their intersection. 
