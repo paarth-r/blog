@@ -5,21 +5,21 @@ import { GeistMono } from 'geist/font/mono'
 import { Navbar } from './components/nav'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import Footer from './components/footer'
+import { Footer } from './components/footer'
 import { baseUrl } from './sitemap'
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'Next.js Portfolio Starter',
-    template: '%s | Next.js Portfolio Starter',
+    default: 'Blog',
+    template: '%s | Blog',
   },
-  description: 'This is my portfolio.',
+  description: 'Read my blog.',
   openGraph: {
-    title: 'My Portfolio',
-    description: 'This is my portfolio.',
+    title: 'Blog',
+    description: 'Read my blog.',
     url: baseUrl,
-    siteName: 'My Portfolio',
+    siteName: 'Blog',
     locale: 'en_US',
     type: 'website',
   },

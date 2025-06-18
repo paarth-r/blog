@@ -1,3 +1,8 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+
 function ArrowIcon() {
   return (
     <svg
@@ -15,7 +20,14 @@ function ArrowIcon() {
   )
 }
 
-export default function Footer() {
+export function Footer() {
+  const [copied, setCopied] = useState(false)
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText('paarth.rajpal@gmail.com')
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000) // Hide notification after 2 seconds
+  }
   return (
     <footer className="mb-16">
       <ul className="font-sm mt-8 flex flex-col space-x-0 space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
@@ -35,7 +47,7 @@ export default function Footer() {
             className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
             rel="noopener noreferrer"
             target="_blank"
-            href="https://github.com/vercel/next.js"
+            href="https://github.com/paarth-r"
           >
             <ArrowIcon />
             <p className="ml-2 h-7">github</p>
@@ -46,15 +58,31 @@ export default function Footer() {
             className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
             rel="noopener noreferrer"
             target="_blank"
-            href="https://vercel.com/templates/next.js/portfolio-starter-kit"
+            href="https://www.linkedin.com/in/paarth-rajpal-9404472a5/"
           >
             <ArrowIcon />
-            <p className="ml-2 h-7">view source</p>
+            <p className="ml-2 h-7">linkedin</p>
           </a>
+        </li>
+        <li>
+          <button
+            onClick={copyEmail}
+            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
+          >
+            <ArrowIcon />
+            <span className="ml-2 h-7 flex items-center">
+              gmail
+              {copied && (
+                <span className="ml-2 text-xs text-green-600 transition-opacity duration-300">
+                  Copied!
+                </span>
+              )}
+            </span>
+          </button>
         </li>
       </ul>
       <p className="mt-8 text-neutral-600 dark:text-neutral-300">
-        © {new Date().getFullYear()} MIT Licensed
+        © {new Date().getFullYear()} Paarth Rajpal. MIT Licensed.
       </p>
     </footer>
   )
