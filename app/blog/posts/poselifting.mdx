@@ -95,15 +95,6 @@ Transformers treat pose estimation as a sequence modeling problem, capturing dep
 
 When paired with a clean 2D-to-3D lifting setup—i.e., using a reliable 2D keypoint detector followed by a transformer-based temporal model like MotionBERT—you get the best of both worlds: modularity, temporal consistency, and strong performance.
 
-## Summary Table
-
-| Architecture        | Temporal? | Best For                    | Pros                                | Cons                             |
-|---------------------|-----------|-----------------------------|-------------------------------------|----------------------------------|
-| CNN Regressors      | ❌         | Fast single-frame tasks      | Simple, efficient                   | Weak on depth and motion         |
-| 2D-to-3D Lifting     | ✔️         | Modular, real-world systems  | Flexible, fast, practical           | Relies on good 2D detector       |
-| Graph Convolutions  | ✔️         | Structured pose prediction   | Body-aware modeling                 | Hard to scale with time/context  |
-| Transformers        | ✔️✔️✔️      | Dynamic, in-the-wild motion  | Best depth + motion understanding   | Needs more data, slower training |
-
 ## Final Thoughts
 
 Different architectures suit different constraints—but for real-time, real-world 3D estimation, **2D-to-3D lifting pipelines** and **transformer-based temporal models** stand out. One gives you modular control and flexibility; the other brings robustness and temporal coherence. Used together, they deliver the most consistent results I’ve seen.
