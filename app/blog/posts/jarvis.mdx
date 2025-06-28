@@ -1,0 +1,66 @@
+---
+title: '3D Hand Pose Estimation and AR: Building My Own JARVIS'
+publishedAt: '2025-06-28'
+summary: 'Ever since I first saw Tony Stark summon his suit with a hand gesture, I’ve been obsessed with building my own JARVIS. Now with 3D hand pose estimation and AR, that dream isn’t science fiction—it’s a software project, and it’s almost ready for GitHub.'
+---
+
+As I slowly devolved into a bay area tech bro, my view on Iron Man began to change; I was no longer fascinated by the (technically impossible) suits or Vibranium—I was fascinated by JARVIS. A voice-activated, gesture-aware assistant that could manipulate data, control machines, and react in real time? That wasn’t just a fantasy. It was a challenge.
+
+Years later, with breakthroughs in **3D hand pose estimation**, **augmented reality**, and **edge AI**, that dream is finally within reach. I’m building a system that fuses voice commands with real-time hand tracking to interact with digital interfaces—think controlling smart devices, launching scripts, or manipulating objects in AR—all without touching a screen.
+
+Here’s how it works, what I’m using, and where it’s going.
+
+## Why 3D Hand Pose Estimation Matters
+
+Human hands are insanely expressive. They can point, signal, grasp, swipe, rotate—all without a single word. But recognizing those gestures in 2D often falls short, especially in AR environments or robotics, where **depth, orientation, and occlusion** are crucial.
+
+**3D hand pose estimation** solves that.
+
+By detecting the 3D position of 21 keypoints on the hand from a single RGB or depth image, we can infer fine-grained gestures like pinches, rotations, and air taps—even in real time.
+
+### Key Tech I'm Using:
+- **MediaPipe Hands + Monocular 3D Lifting** for lightweight inference
+- **Transformers** for temporal stability (similar to what MotionBERT does for full-body pose)
+- **OpenXR / WebXR** for cross-platform AR integration
+- **OpenAI Whisper + Local ASR** for voice commands
+- **Three.js / Unity** for spatial interaction rendering
+
+## The JARVIS Stack: Vision + Voice + Action
+
+The goal is to fuse **3D hand pose estimation** with **natural language interfaces**, creating a fluid input system that reacts to both movement and speech.
+
+Here’s an example of what this might look like:
+- I raise my hand and rotate my wrist → AR hologram rotates
+- I pinch in midair → a new app launches
+- I say “run diagnostics” while pointing → the system runs a predefined script
+- I flick two fingers → the smart lights in my room dim
+
+This isn’t about just recognizing gestures—it’s about **understanding intent** from physical movement and language in real time.
+
+## What’s Hard (But Worth It)
+
+- **Temporal Smoothing:** Hands jitter, especially with monocular estimation. I'm experimenting with transformer-based smoothing layers to reduce noise while preserving speed.
+- **Gesture Vocabulary:** Defining a set of gestures that are intuitive, unambiguous, and low-fatigue is non-trivial.
+- **Latency:** Everything must run at 30+ FPS. I'm working to keep inference and gesture parsing below 40ms per frame.
+- **AR Anchoring:** Getting hand-anchored UI elements to behave consistently across devices takes real calibration.
+
+## Where It’s Headed
+
+I'm in the middle of developing a **modular JARVIS-like assistant** built in Python and running on local hardware. It includes:
+- A gesture recognition engine (with 3D hand pose + action classification)
+- A voice-to-intent parser using Whisper + custom NLP rules
+- A plugin framework for triggering scripts, APIs, or controlling external devices
+
+It’ll be open-sourced soon on GitHub once I finalize the base gesture set and UI. The end goal? A real-time assistant that reacts to how you move and what you say, not just what you tap.
+
+## Final Thoughts
+
+We’re at a turning point. With edge-optimized models, fast monocular 3D pose systems, and powerful web/AR engines, the idea of a real-world JARVIS is no longer sci-fi—it’s open-source.
+
+For me, this is personal. I’m building what I dreamed of as a kid, watching Tony Stark wave his hands through air interfaces. Now I’m writing code instead of blueprints—and I think I’m getting close.
+
+Watch this space—JARVIS is coming to GitHub soon.
+
+---
+
+*Want to follow the build or contribute? My GitHub is linked below, drop a follow!*  
