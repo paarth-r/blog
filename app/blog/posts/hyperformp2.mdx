@@ -1,0 +1,69 @@
+---
+title: "The Journey: Building my Startup as a High Schooler (Part 2)"
+publishedAt: "2025-07-04"
+summary: "Week 2 of building Hyperform: upgraded my entire CV pipeline, added rep tracking and real-time feedback, and started thinking about mobile + AI coaching. Here’s what’s new."
+---
+
+## Progress This Week
+
+This week was all about upgrading the core of Hyperform—moving from a proof-of-concept to something I’d actually trust to give real feedback. The blog this time is a bit more on the technical side—I skipped the part where I whine about not having a sleep schedule or social life this time :)
+
+### Upgraded from MediaPipe to HRNet
+
+MediaPipe was fine to get things moving, but HRNet delivers far better 2D keypoint accuracy—especially under occlusion and awkward poses. It’s heavier, sure, but the quality jump made it worth it.
+
+### Integrated MotionBERT + VideoPose3D
+
+I added both MotionBERT and VideoPose3D for 2D-to-3D pose lifting. Currently benchmarking the two against real-world use cases. MotionBERT looks stronger on temporal consistency, but I’m testing both in live workouts to validate.
+
+### Real-Time Rep Detection Using Velocity
+
+I built a basic system that uses joint angles and 3D velocity to:
+- Identify reps as they happen
+- Spot poor form (jerky transitions, partial reps)
+- Trigger targeted real-time feedback
+
+### Velocity-Based Feedback Engine
+
+Instead of just checking angles, I’m using velocity pattern recognition to assess form. This makes Hyperform more tolerant of small pose errors, while still recognizing smooth vs. sloppy reps.
+
+## Where It’s Running
+
+Testing both cloud-hosted and local inference pipelines:
+- Cloud: easier to scale, but introduces latency and recurring cost
+- Local: fast and private, but harder to deploy broadly
+
+Still experimenting to find the right trade-off for MVP users.
+
+## Portfolio + MVP Status
+
+The project portfolio is live at [https://hyperform-portfolio.vercel.app](https://hyperform-portfolio.vercel.app).
+
+The MVP is nearly ready—pose tracking, rep detection, and feedback—now it's time to put it all in an iOS app and ship ASAP.
+
+## What’s Next
+
+- Launch MVP for early testers
+- Begin work on a basic iOS app that records and gives feedback
+- Prototype a chat-based AI fitness coach
+- Improve velocity/angle visualizations in the UI
+- Benchmark MotionBERT vs. VideoPose3D using real-world reps
+
+---
+
+## Final Thoughts
+
+Two weeks in, Hyperform is evolving fast. The models are getting more accurate. The feedback loop is getting smarter. The UI/UX is going from a notion sketch to a tangible app.
+
+If you're an athlete, coach, dev, or just someone interested in the sports x AI space—I'd love to connect.
+
+---
+
+## Want In?
+
+Early testers and feedback are welcome.  
+Contact through [https://hyperform-portfolio.vercel.app](https://hyperform-portfolio.vercel.app) or DM me directly.
+
+No filters.
+No fluff.
+Just motion.
