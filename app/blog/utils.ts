@@ -53,12 +53,18 @@ export function getBlogPosts() {
   return getMDXData(path.join(process.cwd(), 'app', 'blog', 'posts'))
 }
 
-export function formatDate(date: string, includeRelative = false) {
+export function formatDate(date: string | undefined, includeRelative = false) {
+  if (date == null || typeof date !== 'string' || date.trim() === '') {
+    return 'No date'
+  }
   let currentDate = new Date()
   if (!date.includes('T')) {
     date = `${date}T00:00:00`
   }
   let targetDate = new Date(date)
+  if (Number.isNaN(targetDate.getTime())) {
+    return 'Invalid date'
+  }
 
   let yearsAgo = currentDate.getFullYear() - targetDate.getFullYear()
   let monthsAgo = currentDate.getMonth() - targetDate.getMonth()
