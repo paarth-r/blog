@@ -1,0 +1,25 @@
+---
+title: 'Mobile and Edge Vision: Real-Time Inference on Phones and NPUs'
+publishedAt: '2025-12-18'
+summary: 'ICCV and December papers focus on real-time vision on mobile GPUs and NPUs. Deployment isn’t an afterthought—it’s the design constraint.'
+---
+
+Running vision at **real time** on **mobile GPUs and NPUs** used to mean heavy compromise. Not anymore. The December wave—including work highlighted at ICCV 2025—is about **mobile and edge vision** as a first-class target: architectures, runtimes, and benchmarks that assume the device in your hand or the camera at the edge, not a server in the cloud.
+
+I need this for gesture and AR: 30+ FPS on a phone or glasses is non-negotiable. The same techniques that get detection or segmentation running on mobile—tensor decomposition, quantization, kernel fusion—are the ones that make hand pose and tracking viable on device. Here’s what’s in the spotlight.
+
+## Where the Papers Focus
+
+**Real-time inference**—latency and throughput on mobile GPUs (e.g. Adreno, Mali) and NPUs. Papers report ms per frame and FPS, not just FLOPs. That’s the right metric for product.
+
+**Model design**—efficient backbones, depthwise and grouped convolutions, and attention that’s aware of memory bandwidth. What works on A100 doesn’t always work on Snapdragon; the December and ICCV work is closing that gap.
+
+**Software stack**—inference runtimes, ONNX, TFLite, and framework-specific optimizations. The best papers often ship code and benchmarks so you can reproduce on your own device.
+
+## Why It Matters
+
+Edge and mobile are where most users meet vision: phones, dashcams, AR glasses, IoT. The Open Access repository (openaccess.thecvf.com/ICCV2025) and the December cs.CV list are the right places to find the methods that are built for this. Deployment isn’t an afterthought—it’s the design constraint.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

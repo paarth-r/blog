@@ -1,0 +1,27 @@
+---
+title: 'Embodied Vision and Robotics: Affordances, Action, and Manipulation'
+publishedAt: '2025-10-05'
+summary: 'Vision research is tying into action: affordances, manipulation, and embodied agents. Seeing isn’t enough—the goal is doing.'
+---
+
+Vision in robotics used to be “see, then plan.” Now it’s **see and do**: **affordances**, **manipulation**, and **embodied agents** that tie perception directly to action. The October arXiv batch is full of work that integrates **vision**, **language**, and **control**—hierarchical affordance models, open-vocabulary grasping, and sim-to-real platforms that get from pixels to motion.
+
+I’m interested in this for gesture and AR: the same idea—“what can I do here?”—shows up in “what can the user do with this object?” and “what can the robot do with that cup?” Affordance-aware vision is the bridge between recognition and action. Here’s what’s in the current research.
+
+## Affordance-Aware Hierarchical Models
+
+**A0** and similar work use **hierarchical affordance-aware** models: high-level “where can I act?” and low-level “how do I execute?” Instead of dense spatial maps only, they predict **contact points** and **post-contact trajectories**, so the same representation generalizes across robot platforms (Franka, Kinova, Realman, Dobot). That’s manipulation that doesn’t depend on one arm or one task.
+
+## Open-Vocabulary and Language-Grounded Grasping
+
+**AffordGrasp** and **CRAFT-E** put **language in the loop**. You say what you want to do (“pour from this”), and the system grounds **part-level affordances** and generates grasp poses for the right object parts. That’s task-oriented grasping in clutter without hand-labeled affordance maps. Neuro-symbolic mixes (knowledge graphs + visual-language alignment + energy-based grasp reasoning) are making “ground language to affordances” practical.
+
+## From Pixels to Policies: VLA and Sim-to-Real
+
+**SAGA** disentangles **semantic intent** from **visuomotor control** by grounding tasks as 3D affordance heatmaps from foundation models—unified support for language, pointing, and demonstration. **RealMirror** and other **VLA (vision-language-action)** platforms tackle sim-to-real and data cost, so you can train in simulation and transfer to real robots with minimal fine-tuning.
+
+If you’re working on robotics, manipulation, or any system where “see” has to become “act,” the October cs.CV and robotics arXiv lists are the place to look. Embodied vision is where perception meets the physical world.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

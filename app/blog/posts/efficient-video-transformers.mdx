@@ -1,0 +1,33 @@
+---
+title: 'Efficient Video Transformers: Sparse Attention, Trajectories, and Long-Form Video'
+publishedAt: '2025-07-14'
+summary: 'New video transformer work is all about efficiency: sparse attention, trajectory-based tokenization, and memory-friendly temporal modeling so we can actually handle long videos.'
+---
+
+Video transformers have a scaling problem. Full spatiotemporal attention over long clips is expensive and memory-hungry, so “long video” often meant “a few seconds.” The latest arXiv wave is about fixing that: **sparse attention**, **trajectory-based tokenization**, and **memory-efficient temporal modeling** so we can run at length and at speed.
+
+I care about this for real-time gesture and AR—every frame counts, and you can’t afford to throw compute at every pixel in every frame. The same efficiency tricks that make long-horizon video understanding feasible are the ones that make 30+ FPS pose and tracking possible on edge devices.
+
+Here’s what’s in the current crop of efficient video transformer papers and why it matters.
+
+## Sparse Attention: Structure in the Weights
+
+It turns out video attention isn’t random. **Spatial heads** tend to attend within frames; **temporal heads** across frames. Once you know that, you can profile attention, classify heads, and sparsify without retraining. Sparse VideoGen does exactly that—online profiling, then hardware-friendly sparse kernels—and gets around 2.3× speedup on models like CogVideoX and HunyuanVideo while keeping quality.
+
+Other work uses **radial attention**: attention scores fall off with spatial and temporal distance, so you can approximate with O(n log n) schemes and shrinking temporal windows. Long video generation and understanding both benefit when you don’t pay for attention you don’t need.
+
+## Trajectory-Based Tokenization and Compact Attention
+
+Treating video as “a grid of patches in time” is simple but wasteful. **Trajectory-based** tokenization groups patches that belong to the same object or motion over time, so the model reasons over coherent streams instead of a flat 3D grid. **Compact attention** uses adaptive tiling and temporally varying windows to get 1.6–2.5× speedups while preserving visual quality.
+
+The takeaway: the right tokenization and attention pattern can cut cost without killing performance. That’s how we get to “minutes of video” instead of “seconds.”
+
+## Long-Form Understanding and Agentic Frameworks
+
+Efficiency isn’t only for generation. **Agentic long video understanding**—50+ hours of video—is showing up in systems that use entity scene graphs and multi-hop reasoning over visual, audio, and temporal data. You can’t do that with dense attention over raw pixels; you need structure (graphs, summaries, search) and efficient attention over that structure.
+
+If you’re working on video understanding, temporal action recognition, or real-time video pipelines, the July arXiv cs.CV list is full of ideas. Sparse attention and trajectory-based tokenization are going to show up in production systems soon.
+
+---
+
+*Part of the CV research timeline. More posts in the blog—follow for the next one.*

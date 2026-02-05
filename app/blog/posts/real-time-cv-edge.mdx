@@ -1,0 +1,27 @@
+---
+title: 'Real-Time CV on Edge Devices: Compression, State-Space, and Low-Rank Attention'
+publishedAt: '2025-09-18'
+summary: 'Research is targeting deployment: model compression, state-space models, and low-rank attention so vision runs at speed on phones, cameras, and embedded hardware.'
+---
+
+Running vision at 30+ FPS on a phone or a camera isn’t a given. It takes **model compression**, **efficient architectures**, and **hardware-aware design**. The September arXiv batch is full of work aimed at **edge vision**: **state-space models**, **low-rank adaptation**, and **token reduction** so we can deploy serious models on Jetsons, phones, and NPUs without a datacenter.
+
+I need this for gesture and AR: everything has to run locally and in real time. The same techniques that make YOLO or ViT viable on edge—LoRA-style updates, state-space compression, token merging—are the ones that will make hand pose and tracking feel instant. Here’s what’s in the current research.
+
+## Low-Rank and Tensor-Train for Edge
+
+**LoRA-style** updates are moving from LLMs to vision. **LoRAE** and **LoRA-Edge** use low-rank decomposition (and in LoRA-Edge, tensor-train SVD) so you fine-tune a tiny fraction of parameters—on the order of 1–4%—while staying within a few percent of full fine-tuning accuracy. On YOLOv8x you get big parameter reductions for classification, detection, and segmentation; on Jetson Orin Nano you get faster convergence and smaller checkpoints. That’s the path to on-device adaptation.
+
+## State-Space Models for Video and Tokens
+
+**Mamba-style** and other **state-space** blocks are showing up for video: bidirectional state-space with gated skips and learnable pooling compress frame features and cut token count while keeping performance. For vision transformers, **token merging** that respects the sequential structure of state-space models holds up under aggressive compression where standard pruning falls apart. So we get smaller, faster models without losing robustness.
+
+## Surveys and Deployment Stacks
+
+There are full **surveys** on compressing Vision Transformers for edge: model compression, inference runtimes, and hardware (GPUs, ASICs, FPGAs). If you’re shipping vision to edge, that’s the map—architectures, frameworks, and trade-offs in one place.
+
+The September cs.CV list on edge and efficiency is the right reading before your next deployment. Real-time CV on edge is no longer “maybe someday”; it’s “which compression strategy do I pick.”
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

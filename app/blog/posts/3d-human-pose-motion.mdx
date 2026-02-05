@@ -1,0 +1,25 @@
+---
+title: '3D Human Pose and Motion: State-Space Models and Temporal Priors'
+publishedAt: '2026-01-27'
+summary: 'Papers are exploring state-space models and temporal priors for 3D pose and motion estimation. Smooth, consistent motion from video is finally getting the right machinery.'
+---
+
+**3D human pose and motion** from video have always been noisy. Single-frame estimators jitter; temporal smoothing often loses speed or detail. The January 2026 arXiv wave is about **state-space models** and **temporal priors** for 3D pose and motion: representations that respect the physics and statistics of how people move, so we get **smooth**, **consistent** trajectories without throwing away information.
+
+I care about this for gesture and AR. Hand and body pose are the input; if the 3D trajectory is jittery or drifts, the whole interaction feels wrong. State-space and temporal-prior methods are the same family of ideas I’ve been using for hand pose—and now they’re getting more attention for full-body and motion. Here’s what’s in the current research.
+
+## State-Space Models for Pose and Motion
+
+**State-space models** (e.g. Kalman-style, or learned SSMs) treat pose over time as a latent state that evolves with dynamics. You get **temporal coherence** by construction: the model prefers smooth transitions and can fill in missing or occluded frames. Recent work applies this to 3D body pose, hand pose, and motion capture, with gains in smoothness and robustness to occlusion.
+
+## Temporal Priors and Learned Dynamics
+
+**Temporal priors**—learned or hand-designed—encode “how people move”: joint limits, acceleration bounds, and typical motion patterns. When you combine them with single-frame or short-clip pose estimators, you get trajectories that look human instead of jittery. The January papers are making these priors more expressive (e.g. learned from data) and more efficient (so they run in real time).
+
+## Why This Direction Matters
+
+Pose and motion are the bridge between “see the user” and “understand the action.” State-space and temporal priors are the right tool for that. If you’re working on pose, gesture, or motion capture, the January cs.CV list (arxiv.org/list/cs.CV/2026-01) on 3D human pose and motion is the place to look. Smooth motion isn’t a nice-to-have—it’s a requirement.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

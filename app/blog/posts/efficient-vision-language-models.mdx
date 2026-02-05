@@ -1,0 +1,25 @@
+---
+title: 'Efficient Vision-Language Models: Compact Multimodal for Deployment and Inference'
+publishedAt: '2025-12-02'
+summary: 'December releases emphasize compact multimodal models: token compression, fast inference, and deployment on resource-constrained and edge devices.'
+---
+
+Big VLMs are impressive; **small, fast** ones are what we can ship. The December arXiv wave is about **efficient vision-language models**: **token compression**, **low-latency inference**, and **deployment** on laptops, phones, and embedded hardware. Sub-billion parameter models are matching or approaching larger models on key tasks while running 2–9× faster where it matters.
+
+I care about this for anything that has to run on-device—AR, assistants, document understanding on mobile. The same techniques (token reduction, speculative decoding, quantization) that make VLMs efficient are the ones that make “ask questions about this image” feel instant. Here’s what’s in the current research.
+
+## Token Compression and Reduction
+
+**Visual token compression** is the main lever: merge, pool, or prune less informative tokens so self-attention cost drops. **OmniVLM** compresses from 729 to 81 tokens while keeping visual-semantic fidelity; you get 9× faster time-to-first-token and 1.5× decoding speed vs. nanoLLAVA on laptops. So we’re not just shrinking parameters; we’re shrinking sequence length without killing quality.
+
+## Inference Acceleration and Quantization
+
+**Speculative decoding**—draft with a small model, verify with the big one—speeds up generation. **Patch selection** and **view filtering** cut irrelevant regions or camera views before encoding. **FP8 post-training quantization** on top of efficient architectures (e.g. LiteVLM) can add another big latency win (e.g. 3.2× on embedded platforms). So the full stack—architecture, tokens, quantization—matters.
+
+## Models to Watch
+
+**OmniVLM** (sub-billion), **LiteVLM** (NVIDIA, for autonomous driving and edge), **FastVLM** (hybrid encoder for high-res with lower token count)—these are the ones showing that “efficient VLM” isn’t a compromise; it’s a product requirement. The December cs.CV list on efficient VLMs is the right reading before your next deployment. Compact multimodal is here.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

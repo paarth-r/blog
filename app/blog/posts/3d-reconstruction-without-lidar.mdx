@@ -1,0 +1,31 @@
+---
+title: '3D Reconstruction Without LiDAR: NeRF, Geometry Priors, and Monocular Scenes'
+publishedAt: '2025-07-22'
+summary: 'Monocular and multi-view 3D reconstruction is catching up to LiDAR. Neural radiance fields plus geometry priors are making outdoor and indoor scene reconstruction possible from RGB alone.'
+---
+
+LiDAR used to be the default answer for “I need 3D.” Not anymore. A wave of work on **monocular and multi-view 3D reconstruction** is proving that **neural radiance fields** and **geometry priors** can deliver dense 3D from RGB—and sometimes from a single image or short video—without a single laser.
+
+I’ve been following this for AR and spatial interfaces: the less hardware you need, the more devices can do 3D. NeRF-based methods that work from monocular video or single views are exactly what make “scan the room with your phone” realistic. The July arXiv batch has multiple papers pushing in that direction for outdoor and indoor scenes.
+
+Here’s what’s in play and why it matters.
+
+## Generalizable NeRF from Monocular Video
+
+**MonoNeRF** and similar approaches learn generalizable radiance fields from monocular video—no ground-truth poses or depth labels. The encoder estimates depth and camera pose; the decoder builds a multiplane or volumetric NeRF. At test time you get depth, pose, and novel view synthesis from a single image or short clip. That’s the dream for consumer AR: one camera, no special hardware.
+
+## Unifying Pose and Reconstruction
+
+**SUP-NeRF** and others unify **pose estimation** with **NeRF-based reconstruction**. Instead of piping an external 3D detector into a separate reconstruction module, they resolve scale-depth ambiguity by decoupling object dimensions from pose refinement and use camera-invariant representations. Results on driving and indoor datasets show that you can get state-of-the-art 3D from monocular input if you design the pipeline as one system.
+
+## Single-Image and Self-Supervised Scene Reconstruction
+
+**SceneRF** and related work do **self-supervised single-image scene reconstruction** from posed image sequences at training time. At test time, one image in, depth and 3D out. Explicit depth optimization and probabilistic ray sampling handle large scenes; no LiDAR or depth sensor required.
+
+The common thread: **geometry and radiance in one framework**, trained with color reconstruction and optional depth cues, so 3D becomes a software problem instead of a hardware one.
+
+If you’re building AR, robotics, or any system that needs 3D from cameras, the July cs.CV list on reconstruction and NeRF is worth a deep dive. LiDAR will still have a role, but it’s no longer the only way to get there.
+
+---
+
+*More of the CV timeline in the blog. Drop a follow for the next post.*

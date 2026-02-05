@@ -1,0 +1,27 @@
+---
+title: 'Video Understanding at Scale: Long-Horizon Modeling and Memory-Efficient Architectures'
+publishedAt: '2025-10-22'
+summary: 'ICCV talks are doubling down on long-horizon video modeling, sparse temporal sampling, and memory-efficient architectures. Scale in time is the next frontier.'
+---
+
+At ICCV 2025, **video** isn’t just “a few seconds.” Multiple talks and papers focus on **long-horizon video modeling**, **sparse temporal sampling**, and **memory-efficient architectures** so we can understand hours, not just clips. That’s the difference between “what happened in this shot?” and “what’s the story of this video?”
+
+I care about this for gesture and interaction: short clips give you gestures; long context gives you intent, fatigue, and narrative. The same architectural ideas—sparse attention, trajectory tokens, state-space compression—that make long video tractable also help real-time pipelines stay within memory and latency budgets. Here’s what’s in the ICCV spotlight.
+
+## Long-Horizon and Sparse Temporal Sampling
+
+You can’t run dense attention over every frame of a one-hour video. So we get **sparse sampling**—choose keyframes or segments—and **hierarchical** or **memory-bounded** models that summarize at one scale and reason at another. The talks at ICCV are making this concrete: which sampling strategies work, how to avoid losing critical moments, and how to keep inference cost under control.
+
+## Memory-Efficient Architectures
+
+**Memory-efficient** doesn’t just mean “smaller model.” It means **bounded memory** as sequence length grows: sliding windows, compressed memory banks, state-space models that don’t store full histories. Several ICCV papers push in this direction so that “long video” doesn’t require “datacenter GPU.”
+
+## Where This Goes
+
+Long-horizon video understanding will drive the next wave of applications: search, summarization, compliance, and narrative QA. The Open Access repository (openaccess.thecvf.com) has the full set of ICCV 2025 papers—filter by “video” or “temporal” and you’ll get the ones that define this direction.
+
+If you’re working on video at any scale, those talks and papers are the roadmap. Scale in time is the next frontier.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

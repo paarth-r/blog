@@ -1,0 +1,25 @@
+---
+title: 'Generative 3D Assets: Diffusion and Autoregressive Models for Mesh, Point Cloud, and Articulated Objects'
+publishedAt: '2025-10-12'
+summary: 'Diffusion and autoregressive models are moving into 3D: mesh, point cloud, and articulated object generation. The same generative machinery that changed 2D is reshaping 3D content.'
+---
+
+2D diffusion changed how we generate images. Now **3D** is getting the same treatment: **diffusion** and **autoregressive** models for **mesh**, **point cloud**, and **articulated objects**. The October arXiv wave shows generative 3D moving from “research demo” to “usable asset pipeline”—with structure (parts, joints, motion) built in.
+
+I care about this for AR and spatial interfaces: the more we can generate and edit 3D objects—including articulated ones—from text or partial observations, the less we depend on huge asset libraries. The current work on **articulation graphs**, **physical plausibility**, and **category-aware generation** is what makes “generate a chair that bends” realistic. Here’s what’s in play.
+
+## Articulated Objects: Structure and Motion
+
+**NAP (Neural 3D Articulation Prior)** and **PhysNAP** treat articulated objects as **graphs**: nodes for parts, edges for joints, with diffusion over the graph. NAP captures geometry and motion structure with a graph-attention denoising network; PhysNAP adds **point cloud alignment** and **physical constraints** (non-penetration, mobility) during generation. So you get objects that are not only plausible visually but also mechanically.
+
+**ArtiLatent** puts articulation in **latent space**—joint type, axis, origin, range—with an articulation-aware decoder so appearance stays consistent across joint configurations. **GAOT** does text-guided articulated generation via point clouds, hypergraphs for parts, and diffusion for joints. The common theme: **structure first**, then appearance.
+
+## From Single Shape to Full 3D Pipelines
+
+We’re past “generate a point cloud.” We’re at **conditioned generation** (partial scan, text, category), **part-aware** representations, and **datasets** like PartNet-Mobility that support training and evaluation. So generative 3D is becoming a real option for content creation, simulation, and AR.
+
+If you’re building anything that needs 3D assets—games, AR, robotics sims—the October cs.CV list on generative 3D is worth a deep dive. The boundary between “model the world” and “generate the world” is getting thinner.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

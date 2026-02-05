@@ -1,0 +1,27 @@
+---
+title: 'Multitask Perception Benchmarks: Detection, Tracking, and Reasoning in One Place'
+publishedAt: '2026-01-05'
+summary: 'Unified benchmarks that combine detection, tracking, and reasoning are gaining traction. One model, many tasks—and one evaluation to rule them all.'
+---
+
+Single-task benchmarks are the past. The January 2026 arXiv wave is about **unified multitask perception benchmarks**: **detection**, **tracking**, and **reasoning** (and sometimes more) in a single evaluation so we can compare “generalist” models and see if one architecture can do it all. That’s the direction the field is heading—one model, many tasks—and the new benchmarks are the yardstick.
+
+I care about this for systems that need to do more than one thing: e.g. detect hands, track them, and reason about gesture intent. Multitask benchmarks tell us which backbones and training recipes actually transfer across tasks instead of excelling on one and failing on another. Here’s what’s in play.
+
+## Why Multitask Evaluation Matters
+
+**Single-task** leaderboards reward specialists. **Multitask** benchmarks reward models that share representation and computation across detection, tracking, segmentation, and sometimes VL reasoning. So we can ask: does your “vision foundation” actually found multiple tasks? The January papers are defining the protocols and datasets that make that question answerable.
+
+## What to Look For
+
+**Task coverage**—which tasks are in the benchmark? Detection + tracking + reasoning is the minimum for “perception stack.” Some add depth, 3D, or language.
+
+**Unified metrics**—one score or a small set so we can rank models without juggling 10 different metrics. Often that means normalized or composite scores across tasks.
+
+**Efficiency**—multitask can mean “one forward pass, many outputs.” Benchmarks that report latency and params as well as accuracy are the ones that matter for deployment.
+
+The January cs.CV list (arxiv.org/list/cs.CV/2026-01) is where to find the new multitask benchmarks. If you’re building or choosing a general-purpose vision model, that’s your starting point.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

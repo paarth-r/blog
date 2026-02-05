@@ -1,0 +1,27 @@
+---
+title: 'Self-Supervised Vision: From Contrastive to Masked and Generative Objectives'
+publishedAt: '2025-08-29'
+summary: 'Self-supervised vision is shifting from contrastive learning toward masked prediction and generative objectives. The goal is better representations without heaps of labels.'
+---
+
+Self-supervised vision used to mean **contrastive learning**: pull similar views together, push others apart. That’s still useful, but the momentum has shifted. The August arXiv wave is all about **masked prediction** and **generative objectives**—learning by predicting missing patches, latent structure, or full distributions instead of just matching pairs.
+
+I care about this for systems that need good visual representations without massive labeled data: gesture recognition, AR, and domain-specific vision. The less we depend on manual labels, the faster we can adapt to new environments and new tasks. Masked and generative self-supervision are the path there. Here’s what’s in the current research.
+
+## Masked Image Modeling: Beyond Pixels
+
+**Masked image modeling (MIM)** is the dominant self-supervised paradigm now. You mask part of the image and train the model to predict what’s missing—pixels, patches, or latent codes. The field splits into **reconstruction-based** (predict pixels or features) and **contrastive-style** (predict in a learned space). The trend is toward **latent** and **semantic** targets: predict in a high-level space so the model learns structure, not just texture.
+
+**LoMaR** and similar work make MIM efficient: reconstruct from small local neighborhoods instead of the whole image. You get 2.5× faster than MAE and 5× faster than BEiT on high-res ImageNet pretraining, with small accuracy gains. So we’re not trading speed for quality.
+
+## Latent and Probabilistic Twists
+
+**Latent MIM** avoids pixel-level reconstruction and its tendency to focus on low-level detail. The risk is representation collapse and high correlation between regions. **CAPI** and related methods use clustering-based losses to predict latent clusterings instead of raw latents, getting close to SOTA on ImageNet with ViT-L. **Masked VAE** models masked tokens as samples from a multivariate Gaussian, so the model learns distributional structure—multiple plausible completions—instead of a single guess.
+
+## Why the Shift Matters
+
+Contrastive learning is great for alignment; masked and generative objectives are better for **rich, structured representations** that transfer across tasks and domains. If you’re pretraining vision backbones or fine-tuning with limited labels, the August cs.CV list on self-supervision is worth a pass. The future of representation learning is masked and generative.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next post.*

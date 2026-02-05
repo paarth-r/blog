@@ -1,0 +1,27 @@
+---
+title: 'Medical and Scientific Vision: Generalization Across Institutions and Demographics'
+publishedAt: '2025-11-24'
+summary: 'Medical imaging papers are growing, with a focus on generalization across institutions and demographics. Fairness and robustness in clinical AI are under the microscope.'
+---
+
+Medical imaging AI is having a **generalization** and **fairness** moment. The November arXiv wave includes a lot of work on **generalization across institutions and demographics**: do models trained at one hospital work at another? Do they perform equally across age, sex, and ethnicity? The answers are often “not yet”—and the research is finally making that measurable and addressable.
+
+I don’t build medical systems myself, but the same issues show up everywhere: **distribution shift**, **demographic shortcuts**, and **local vs. global fairness**. What the medical imaging community is learning about multi-site validation, demographic representation, and limits of “fair” models in the wild applies to any high-stakes vision system. Here’s what’s in the current research.
+
+## Demographic Gaps in Data and Labels
+
+**Pediatric underrepresentation** is stark: children are a tiny fraction of public medical imaging datasets, yet they’re a large patient population. Models trained on adult data can have higher false positive rates in kids; only a small fraction of FDA-approved medical AI devices are labeled for pediatric use. So “generalization” isn’t just about hospitals—it’s about who’s in the training set.
+
+## Fairness and Generalization Don’t Always Align
+
+**Correcting demographic shortcuts** in training (e.g. so the model doesn’t rely on age or sex for diagnosis) can improve fairness **in-distribution** but create “locally optimal” models that **don’t** transfer to new sites or populations. Some work shows that models with *less* explicit demographic encoding can generalize *better* across environments. So optimizing for fairness on one dataset may not give you fairness or performance in the wild. We need evaluation across institutions and demographics, not just on a single benchmark.
+
+## Multi-Center and Longitudinal Evaluation
+
+Research is moving toward **multi-center** datasets and **longitudinal** assessment of demographic representativeness in open data commons. That’s the infrastructure we need to measure and improve generalization and fairness at scale.
+
+If you care about robustness, fairness, or deployment in sensitive domains, the November cs.CV and medical imaging literature are worth watching. What works in medical vision will influence how we think about reliability everywhere.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

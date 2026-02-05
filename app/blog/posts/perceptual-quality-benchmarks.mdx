@@ -1,0 +1,33 @@
+---
+title: 'Visual Quality and Perception Benchmarks: Stress-Testing How Models Really See'
+publishedAt: '2025-08-08'
+summary: 'New benchmarks are targeting perceptual quality and human-aligned visual judgment. They’re designed to expose where LMMs and VLMs still fail at how humans see and judge images.'
+---
+
+We’ve had benchmarks for accuracy, robustness, and speed. What we’ve lacked is systematic evaluation of **perceptual quality** and **human-aligned visual judgment**—does the model “see” like we do, and does it agree with us on what looks good, natural, or wrong? ICCV 2025 workshops and the August arXiv drop are filling that gap with new benchmarks built to stress-test **large multimodal models** on exactly those dimensions.
+
+I care about this for interfaces that depend on visual quality: AR, generative tools, and any system where “looks right to the model” has to match “looks right to the user.” If LMMs optimize for task accuracy but not for perceptual alignment, we’ll keep getting models that are “correct” and yet feel off. These benchmarks are the first step to measuring and fixing that.
+
+Here’s what’s in play.
+
+## Why Perceptual Benchmarks Matter
+
+Standard vision benchmarks reward **task performance**: classification accuracy, detection mAP, caption quality. They don’t directly measure whether the model’s internal notion of **quality**, **naturalness**, or **artifact sensitivity** matches humans. So we get models that ace metrics but produce or accept images that look blurry, inconsistent, or uncanny. Perceptual benchmarks force the issue: if your model scores well on “does this image look natural?” or “rank these by quality,” it has to align with human perception, not just with task labels.
+
+## What the New Benchmarks Target
+
+The new work focuses on:
+
+- **Perceptual quality assessment**—human-aligned ratings of sharpness, realism, and artifacts
+- **Judgment tasks**—comparisons and rankings that require the same kind of sensitivity humans have
+- **Weaknesses of current LMMs**—systematic failure modes on fine-grained visual judgment
+
+Workshop challenges at ICCV 2025 are releasing datasets and metrics so the community can compare methods on the same footing. That’s how “better perception” stops being subjective and starts being measurable.
+
+## Where This Goes
+
+Once we have standard benchmarks for perceptual quality and human-aligned judgment, we can train and fine-tune models to optimize for them. That’s the path to LMMs that don’t just answer questions about images but **agree with humans** on what’s good, bad, and in-between. If you’re building anything that depends on visual quality or user-facing judgment, keep an eye on the ICCV 2025 workshops and the August cs.CV list.
+
+---
+
+*More of the CV timeline in the blog. Drop a follow for the next post.*

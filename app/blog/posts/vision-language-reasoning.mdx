@@ -1,0 +1,27 @@
+---
+title: 'Vision + Language Reasoning: Chain-of-Thought, Tools, and Structured Perception'
+publishedAt: '2025-11-08'
+summary: 'Research is shifting toward structured reasoning, tool use, and chain-of-thought style perception in VLMs. It’s not just “what do you see?” but “how did you get there?”'
+---
+
+VLMs that only output a final answer are hitting a ceiling. The November arXiv wave is about **structured reasoning**, **tool use**, and **chain-of-thought** perception: models that show their work, use external tools (e.g. Python, image crop), and reason step-by-step over images. That’s the path from “smart caption” to “reliable visual reasoner.”
+
+I care about this for any system that has to explain or verify its visual decisions—QA, document understanding, visual debugging. When the model can produce a reasoning trace, we can check it, improve it, and trust it more. Here’s what’s in the current research.
+
+## Visual Chain-of-Thought at Scale
+
+**VisReason** and similar efforts provide **large-scale datasets** (e.g. 489K examples) for visual chain-of-thought: not just “what’s in the image?” but “reason step-by-step and then answer.” Fine-tuning VLMs on this improves both accuracy and cross-benchmark generalization. So we know CoT for vision is trainable and transferable.
+
+**Training strategies** matter. Post-training that adds reasoning chains (e.g. GPT-4o–generated) and then uses outcome-based reinforcement learning (e.g. DPO) fixes the issue that models trained only on short answers don’t generalize to CoT. Two-stage: first teach the chain, then reward the correct outcome.
+
+## Tool Use and “Think with Images”
+
+**VTool-R1** and related work let VLMs **interleave text and images** in their reasoning—e.g. “crop this region,” “run this code,” “now look at this.” That’s tool-augmented visual reasoning without process-level supervision. **CoT-VLA** brings visual chain-of-thought to **vision-language-action** for robots: predict future image goals, then generate actions. Real-world manipulation gains on the order of 17% over baseline VLAs show that “reason in visual space” pays off.
+
+## Why This Direction Matters
+
+Structured reasoning and tools make VLMs **auditable** and **extensible**. We can see why they answered what they did, and we can give them new tools without retraining from scratch. The November cs.CV list on vision-language reasoning is the place to mine for ideas. The future of VLMs is chain-of-thought and tools.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

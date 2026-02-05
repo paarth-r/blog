@@ -1,0 +1,27 @@
+---
+title: 'Robustness and Distribution Shift: When Models Break and How We Measure It'
+publishedAt: '2025-09-27'
+summary: 'Papers are tackling model brittleness under domain shift, adversarial noise, and real-world corruption. New benchmarks are making robustness measurable.'
+---
+
+Models that ace ImageNet can fall apart under **domain shift**, **adversarial noise**, or **real-world corruption**. The September arXiv wave is about making that failure **visible** and **fixable**: benchmarks that stress-test robustness, adaptation methods that don’t assume clean test data, and a clearer picture of the gap between “accuracy in the lab” and “reliability in the wild.”
+
+I care about this for any system that leaves the training distribution—AR in new environments, gesture recognition under different lighting and users, vision in production. Robustness isn’t optional. The current research is giving us better tools to measure and improve it. Here’s what’s in play.
+
+## Corruption Benchmarks: ImageNet-C and Beyond
+
+**ImageNet-C**, **CIFAR-10-C**, **MNIST-C** apply a fixed set of **corruptions** (blur, compression, fog, brightness, etc.) at multiple severity levels. They’re the standard way to ask “how does your model degrade when the image is messy?” Newer benchmarks like **OOD-CV-v2** and **CNS-Bench** go further: OOD shifts in pose, shape, texture, context, and weather; CNS-Bench uses diffusion to generate continuous nuisance shifts at varying severity. So we can see not just “does it break?” but “how does ranking change across shift types?”
+
+## Adaptation Without Labels
+
+You often have **unlabeled** test data from the same (corrupted) distribution. **Covariate shift adaptation**—e.g. replacing batch norm statistics with those from the corrupted batch—can dramatically improve robustness. ResNet-50 on ImageNet-C went from 76.7% to 62.2% mCE with adaptation; SOTA models from 56.5% to 51.0%. So we don’t have to retrain; we can adapt at test time when we have a batch of “real” test inputs.
+
+## Adversarial vs. Corruption: Different Failures
+
+One important finding: **adversarial robustness** and **corruption robustness** don’t always align. Defenses that help against adversarial examples can hurt on corruption benchmarks. That means we need both kinds of evaluation and different strategies for each. The September cs.CV list has papers that dig into this and propose methods that don’t trade one for the other.
+
+If you’re deploying vision in the open world, the robustness and distribution-shift papers from September are required reading. Measure first, then optimize.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next post.*

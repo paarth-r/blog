@@ -1,0 +1,27 @@
+---
+title: 'Multimodal Tracking and Video Understanding: When Audio, Text, and Vision Meet'
+publishedAt: '2025-09-06'
+summary: 'New work integrates audio, text, and vision for robust multi-object tracking and event understanding in long videos. One modality isn’t enough anymore.'
+---
+
+Tracking and video understanding used to be “vision only.” That’s changing. The September arXiv wave is about **multimodal tracking** and **long-horizon video understanding**: combining **audio**, **text**, and **vision** so we get robust multi-object tracking and event-level understanding even when one stream is noisy or missing.
+
+I’ve been thinking about this for gesture and AR—when the user speaks and moves at the same time, you want one system that fuses both. The same idea scales to surveillance, driving, and “understand this meeting” video: language tells you *what* to track, audio tells you *when* something happens, and vision grounds it all. Here’s what’s in the current research.
+
+## Language-Guided Multi-Object Tracking
+
+**LaMOT** and similar work put **language in the loop**: instead of template-based tracking, you get “track the person in the red shirt” or “follow the package.” That means benchmarks with text annotations per target and models that take natural language as input. The result is tracking that follows intent, not just appearance. Large-scale benchmarks (e.g. 1,660 sequences across multiple datasets) are making this comparable across methods.
+
+## Handling Missing Modalities
+
+Real sensors fail or aren’t synced. **Multimodal object tracking (MMOT)** combines RGB, depth, thermal, event, language, and audio—but what when one modality drops? Recent work uses **heterogeneous mixture-of-experts** that activate experts depending on which modalities are available, so you degrade gracefully instead of failing when one stream is missing. That’s what you need for deployment.
+
+## Long-Horizon and Audio-Visual Reasoning
+
+For **very long** egocentric video (hours or days), you can’t run dense attention over every frame. **Entity scene graphs**—people, places, objects, relations over time—plus hybrid visual and audio search let systems do multi-hop, cross-modal reasoning. **OmniAgent** and others use **audio to guide visual reasoning**: first localize in time with audio, then refine with vision. That’s a 10–20% accuracy bump over vision-only or passive multimodal models.
+
+If you’re building tracking, video QA, or event understanding, the September cs.CV list on multimodal tracking and long video is the place to look. One modality isn’t enough anymore.
+
+---
+
+*Part of the CV research timeline. More in the blog—follow for the next one.*

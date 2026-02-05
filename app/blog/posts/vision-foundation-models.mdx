@@ -1,0 +1,25 @@
+---
+title: 'Vision Foundation Models: Transfer, Robustness, and Downstream Efficiency'
+publishedAt: '2025-12-10'
+summary: 'Large-scale pretrained vision backbones are being evaluated for transfer, robustness, and downstream efficiency. What makes a foundation model actually foundational?'
+---
+
+**Vision foundation models**—large pretrained backbones that transfer to many tasks—are no longer hypothetical. The December arXiv wave is about **evaluating** them: **transfer** to detection, segmentation, and retrieval; **robustness** under shift and corruption; and **downstream efficiency** (can we fine-tune or adapt them without a datacenter?). The question isn’t “do we have foundation models?” but “which ones are worth building on?”
+
+I use foundation models as the backbone for gesture and AR pipelines: one pretrained encoder, then task-specific heads. So transfer quality, robustness, and the cost of adaptation directly affect what I can ship. Here’s what the current evaluation work is showing.
+
+## Transfer: How Far Does One Backbone Go?
+
+The best backbones now transfer to **dozens of tasks** with minimal or no extra data: classification, detection, segmentation, depth, retrieval. The comparisons focus on **same-architecture** fairness and **same-compute** fairness so we’re not conflating size with design. What’s clear is that pretraining objective and scale both matter—and that “foundation” means “useful across many downstream tasks,” not just “big.”
+
+## Robustness and Downstream Efficiency
+
+**Robustness** evaluations are standard: corruption benchmarks, domain shift, OOD. Foundation models aren’t automatically robust; some transfer well but degrade under shift. So we need to measure both transfer and robustness when we choose a backbone.
+
+**Downstream efficiency**—parameter-efficient fine-tuning, linear probing, few-shot—is where foundation models earn their keep. The December papers are quantifying how much data and compute you need to get to “good enough” on a new task. That’s the roadmap for product teams.
+
+If you’re picking a vision backbone for 2026, the December cs.CV list on foundation model evaluation is the place to look. Transfer, robustness, and efficiency are the three axes that matter.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*

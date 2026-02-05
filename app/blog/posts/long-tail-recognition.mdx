@@ -1,0 +1,31 @@
+---
+title: 'Long-Tail Recognition: Class-Aware Sampling and Reweighting When Data Is Unbalanced'
+publishedAt: '2025-08-15'
+summary: 'Long-tailed and imbalanced datasets are getting dedicated attention: class-aware sampling, representation reweighting, and better decision boundaries for the tail classes.'
+---
+
+Real-world data is long-tailed. A few classes get most of the samples; the rest live in the tail with scarce data and biased decision boundaries. **Long-tail recognition** research is finally treating that as a first-class problem: **class-aware sampling**, **representation reweighting**, and **decision-boundary design** so tail classes get a fair shot.
+
+I run into this whenever I work with gesture vocabularies or niche object sets—the “common” gestures or objects are easy; the rare ones get forgotten or confused. The same math that fixes long-tail in image classification applies to action recognition, detection, and any setting where the world isn’t uniformly distributed. The August arXiv batch has multiple papers pushing the state of the art.
+
+Here’s what’s in the mix.
+
+## The Core Problem: Scarcity and Bias
+
+Long-tailed datasets give you two headaches: **sample scarcity** in the tail and **biased decision boundaries** because the classifier is dominated by head classes. Fixing one without the other isn’t enough. You need rebalancing (so the tail is seen more) and better boundaries (so the model doesn’t collapse tail into head). Current methods do both: class rebalancing, logit adjustment, and data augmentation to enlarge tail decision regions and sharpen boundaries.
+
+## Supervised Exploratory Learning and Sampling
+
+**Supervised Exploratory Learning (SEL)** and similar frameworks combine **class-biased complement** (so the effective class distribution is more balanced) with **fitness-weighted sampling** (so the model explores the feature space instead of overfitting the head). The result is stronger decision regions across all classes and a plug-and-play module you can add to existing pipelines.
+
+## Decoupled Training and Label Smoothing
+
+**Decoupled training**—representation learning first, then classifier re-training—is standard. The new twist is **label over-smoothing**: softening one-hot labels by giving the true class slightly more than 1/K probability. That balances logits across classes and improves performance on CIFAR-100-LT, ImageNet-LT, and iNaturalist. For **detection**, balanced group softmax plus k-NN-style classification helps with feature clustering in the tail.
+
+## Why It Matters for Builders
+
+If your data is imbalanced—and it usually is—long-tail methods are no longer optional. The August cs.CV list has concrete recipes: sampling strategies, loss adjustments, and evaluation metrics (e.g. logit magnitude, regularized standard deviation) that let you compare approaches. Worth a skim before your next training run.
+
+---
+
+*Part of the CV research timeline. More posts in the blog—follow for the next one.*

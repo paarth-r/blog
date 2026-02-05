@@ -1,0 +1,35 @@
+---
+title: 'ICCV 2025 Accepted Papers: Where Computer Vision Is Heading'
+publishedAt: '2025-07-04'
+summary: 'The ICCV 2025 accepted papers list is live. Multimodal vision, efficient video models, 3D perception, and robustness aren’t just buzzwords—they’re the dominant research directions defining the field this year.'
+---
+
+When the ICCV accepted papers list drops, it’s not just a list—it’s a snapshot of where the whole field is betting. This year’s lineup makes one thing clear: **multimodal vision**, **efficient video models**, **3D perception**, and **robustness** aren’t side projects. They’re the main event.
+
+I’ve been tracking temporal video grounding and text-video retrieval for a while, and seeing them land front and center at ICCV 2025 feels like validation. The community is finally treating video as first-class: pretraining on unlabeled videos, refining pseudo-labels with semantics and memory-consensus, and pushing MLLMs into bidirectional text-video likelihood. That’s the kind of infrastructure that makes “understand this clip” actually work.
+
+Here’s what stood out to me in this year’s accepted set—and why it matters.
+
+## What’s Dominating the Program
+
+**Temporal video grounding** is getting serious. Work like Vid-Group shows what happens when you scale pretraining to 50K+ unlabeled videos and 200K pseudo annotations, then clean them up with semantics-guided refinement. You stop treating grounding as a small-data game and start treating it as a pretraining problem.
+
+**Text-video retrieval** is moving beyond single-vector embeddings. Bidirectional likelihood estimation with multi-modal LLMs, plus candidate-prior normalization to cut bias, is giving real gains—think 6+ point R@1 improvements across benchmarks. That’s the difference between “good demo” and “usable system.”
+
+**Multimodal few-shot and tracking** are everywhere. Multi-modal few-shot temporal action segmentation, RGB-X tracking with mixture-of-experts, and workshop tracks on “What’s next in multimodal foundation models” all point in the same direction: vision that doesn’t live in a single modality or a single task.
+
+## Why This Year Feels Different
+
+Past ICCVs often felt like detection, segmentation, and 3D in rotation. This year it’s **fusion by default**—vision + language, vision + audio, video + reasoning. The papers that stick are the ones that assume multiple streams of information and design for them up front.
+
+3D isn’t going away; it’s getting folded into generative and perceptual pipelines. Robustness isn’t a side workshop; it’s in the main track. If you’re building anything that touches video or multimodal understanding, this program is your reading list.
+
+## Where I’m Taking This
+
+I’m using this list to sanity-check my own roadmap: hand pose + AR, gesture vocabularies, and real-time inference all sit in the same ecosystem as these ICCV themes. Efficient temporal modeling, better grounding, and cross-modal consistency are exactly what make gesture-aware interfaces feel natural instead than janky.
+
+The official accepted papers are live on the ICCV 2025 site. If you care about where CV is going, block an afternoon and skim the titles—then go deep on the ones that match what you’re building.
+
+---
+
+*Following the CV research timeline? The rest of this series is in the blog—drop a follow if you want more of this.*

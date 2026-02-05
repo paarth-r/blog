@@ -1,0 +1,31 @@
+---
+title: 'Diffusion Models for Vision Tasks: Beyond Generation to Pose, Depth, and Tracking'
+publishedAt: '2025-08-02'
+summary: 'August opens with diffusion moving beyond image generation into pose estimation, depth completion, and tracking. The same denoising machinery is proving powerful for perception and 3D.'
+---
+
+Diffusion models didn’t stay in the generative corner. This month the trend is clear: **diffusion is moving into perception**. Pose estimation, depth completion, tracking, and 3D are all getting the denoising treatment—and in many cases it’s not just incremental; it’s a step change in handling ambiguity and multi-hypothesis outputs.
+
+I’ve been interested in pose and 3D for AR and gesture systems. Single-point estimates break when the problem is ambiguous; diffusion’s ability to model **distributions** and **multi-hypothesis** outputs maps well to “several plausible poses” or “several plausible depths.” The August arXiv cs.CV batch has multiple papers making that concrete.
+
+Here’s what’s in the mix.
+
+## Diffusion for Pose: Multi-Hypothesis and Whole-Body
+
+**DiffPose** uses conditional diffusion for **multi-hypothesis 3D human pose**—predicting several plausible poses from one image instead of one. That’s the right framing for occlusion and ambiguity. **DPoser-X** goes further: whole-body (body, hands, face) pose as an inverse problem solved with variational diffusion sampling, with big gains over VPoser-style priors. Pose estimation as denoising is catching on.
+
+**SDPose** and others use **pre-trained diffusion priors** (e.g. Stable Diffusion) for pose, with an auxiliary RGB reconstruction branch for cross-domain robustness. So you get both better generalization and a natural way to regularize with “does this look like a real image?”
+
+## Depth and Joint RGB–Depth
+
+**JointDiT** models the **joint distribution of RGB and depth** in a single diffusion transformer. Adaptive scheduling and unbalanced timestep sampling let you do joint generation, depth estimation, and depth-conditioned image generation by controlling which modality you denoise at which step. That’s a clean way to share representation between vision and 3D.
+
+## Why Diffusion Fits Perception
+
+Diffusion gives you: **multi-modal outputs** (several plausible answers), **stable training** (no mode collapse like some GANs), and **strong priors** when you plug in pretrained generative models. For pose, depth, and tracking, that’s exactly what you want when the problem is underconstrained.
+
+If you’re working on pose, depth, or 3D and haven’t looked at diffusion-based formulations, the August cs.CV list is a good place to start. The boundary between “generative” and “perception” is getting blurry in a useful way.
+
+---
+
+*Part of the CV research timeline. More in the blog—follow for the next one.*

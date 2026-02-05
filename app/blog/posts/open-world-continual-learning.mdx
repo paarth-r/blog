@@ -1,0 +1,25 @@
+---
+title: 'Open-World and Continual Learning: Unknown Classes and Non-Stationary Data'
+publishedAt: '2025-11-16'
+summary: 'Papers are tackling learning under open-world conditions: unknown classes, continual updates, and the union of novelty detection with incremental learning.'
+---
+
+Most vision systems assume a **closed world**: fixed classes, stationary data. The real world is **open**: new categories show up, new environments, new tasks. **Open-world continual learning** is the regime where you must **detect novelty** (unknown classes) and **learn incrementally** (add new classes without forgetting old ones). The November arXiv wave has multiple papers that unify these two problems and prove they’re deeply connected.
+
+I care about this for gesture vocabularies and AR: users add new gestures, new environments, new devices. You need to recognize “I’ve never seen this” and then optionally learn it without wiping out what you already know. The same math applies to robotics, surveillance, and any long-lived vision system. Here’s what’s in play.
+
+## Unifying Novelty Detection and Continual Learning
+
+**Open-world continual learning (OWCL)** formalizes the setting: at test time you see **known** and **unknown** classes; you must classify the known and flag the unknown, and over time some unknowns become known (you get labels). The key result: **good out-of-distribution (OOD) detection within learned tasks is necessary and sufficient for successful class incremental learning.** So you don’t solve “detect new” and “learn new” separately; you design for both at once.
+
+The decomposition is **within-task prediction** (what class within what we know?) and **task-id prediction** (is this from a known task or something new?). Methods that do both well handle open-world streams; methods that only do incremental learning without OOD detection fail when the world is non-stationary.
+
+## Practical Challenges and Recent Methods
+
+Current work addresses: **transfer from both known and unknown** samples, **few-shot** updates when labels are scarce, and **adaptive knowledge spaces** that move “unknown” to “known” when labels arrive. So we’re past “does it work in theory?” and into “how do we scale and deploy it?”
+
+If you’re building systems that run in the open world—new users, new environments, new categories—the November cs.CV and cs.LG lists on open-world and continual learning are worth a pass. The future of robust vision is open-world by default.
+
+---
+
+*Part of the CV timeline. More in the blog—follow for the next one.*
