@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProjectBySlug, getAllProjects } from 'app/data/projects'
 import { fetchRepoHistory } from 'app/lib/github'
-import { VersionTree } from 'app/components/version-tree'
+import { VersionHistoryPolling } from 'app/components/version-history-polling'
 import { UpdatesFeed } from 'app/components/updates-feed'
 import { ProjectImage } from 'app/components/project-image'
 
@@ -72,7 +72,8 @@ export default async function ProjectPage({
   let history: Awaited<ReturnType<typeof fetchRepoHistory>> = null
   if (project.githubRepo) {
     const [owner, repo] = project.githubRepo.split('/')
-    history = await fetchRepoHistory(owner, repo)
+    // Fetch fresh on every page open/refresh; polling keeps it updated while viewing
+    history = await fetchRepoHistory(owner, repo, 0)
   }
 
   const githubUrl = project.githubRepo
@@ -97,8 +98,12 @@ export default async function ProjectPage({
       </div>
 
       {project.image && (
-        <div className="relative -mx-2 aspect-video w-[calc(100%+16px)] overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 md:mx-0 md:w-full">
-          <ProjectImage src={project.image} />
+        <div className="relative -mx-2 aspect-video w-[calc(100%+16px)] overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 md:mx-0 md:w-full flex items-center justify-center bg-neutral-100 dark:bg-neutral-900">
+          <ProjectImage
+            src={project.image}
+            contain={project.id === 'hyperform'}
+            invert={project.id === 'hyperform'}
+          />
         </div>
       )}
 
@@ -157,7 +162,7 @@ export default async function ProjectPage({
               <h3 className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                 Version history
               </h3>
-              <VersionTree history={history} />
+              <VersionHistoryPolling slug={slug} initialHistory={history} />
             </div>
           )}
           {project.updates && project.updates.length > 0 && (

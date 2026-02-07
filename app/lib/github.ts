@@ -67,20 +67,23 @@ export async function fetchRepoTree(
 /** Fetch commit history and branches for version tree (no file list). */
 export async function fetchRepoHistory(
   owner: string,
-  repo: string
+  repo: string,
+  /** Override cache: use 0 for fresh data (e.g. when polling). Default 3600 (1 hour). */
+  revalidateSeconds: number = 3600
 ): Promise<RepoHistory | null> {
+  const cacheOpt = revalidateSeconds === 0 ? { cache: 'no-store' as RequestCache } : { next: { revalidate: revalidateSeconds } }
   try {
     const [repoRes, commitsRes, branchesRes] = await Promise.all([
       fetch(`${GITHUB_API}/repos/${owner}/${repo}`, {
-        next: { revalidate: 3600 },
+        ...cacheOpt,
         headers: { Accept: 'application/vnd.github.v3+json' },
       }),
       fetch(`${GITHUB_API}/repos/${owner}/${repo}/commits?per_page=25`, {
-        next: { revalidate: 3600 },
+        ...cacheOpt,
         headers: { Accept: 'application/vnd.github.v3+json' },
       }),
       fetch(`${GITHUB_API}/repos/${owner}/${repo}/branches?per_page=10`, {
-        next: { revalidate: 3600 },
+        ...cacheOpt,
         headers: { Accept: 'application/vnd.github.v3+json' },
       }),
     ])

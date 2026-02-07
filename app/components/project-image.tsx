@@ -2,7 +2,16 @@
 
 import { useState } from 'react'
 
-export function ProjectImage({ src, alt }: { src: string; alt?: string }) {
+type ProjectImageProps = {
+  src: string
+  alt?: string
+  /** Center image in frame and show full image (contain) instead of crop (cover) */
+  contain?: boolean
+  /** Invert colors (e.g. for dark logos on light background) */
+  invert?: boolean
+}
+
+export function ProjectImage({ src, alt, contain, invert }: ProjectImageProps) {
   const [error, setError] = useState(false)
 
   if (error) {
@@ -16,12 +25,16 @@ export function ProjectImage({ src, alt }: { src: string; alt?: string }) {
     )
   }
 
+  const objectClass = contain
+    ? 'object-contain object-center'
+    : 'object-cover object-center'
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
       alt={alt ?? ''}
-      className="h-full w-full object-cover object-top"
+      className={`h-full w-full ${objectClass} ${invert ? 'invert' : ''}`}
       onError={() => setError(true)}
     />
   )

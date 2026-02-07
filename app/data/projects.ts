@@ -13,7 +13,12 @@ export type Project = {
   year?: string
   tech?: string[]
   featured?: boolean
-  /** URL or path for project page hero image */
+  /**
+   * Project page hero image.
+   * - Local: add the file to `public/images/<id>.png` (e.g. jarvis.png) and set image: '/images/jarvis.png'
+   * - Remote: set image: 'https://...' to use an external URL.
+   * See public/images/README.md for the list of expected filenames.
+   */
   image?: string
   /** Article/abstract/readme for the project page */
   abstract?: string
@@ -61,6 +66,35 @@ The goal is a real-time assistant that reacts to how you move and what you say, 
 We apply state-of-the-art pose models to analyze movement and give users actionable cues—so they can train safely and effectively without a coach in the room. The product combines a React front end with cloud-backed CV pipelines (AWS) and Firebase for auth and data.
 
 Ongoing work focuses on robustness across body types and environments, and on expanding the movement library. Live at [hyperformfit.com](https://hyperformfit.com).`,
+  },
+  {
+    id: 'odin',
+    title: 'Odin',
+    description:
+      'A macOS notch utility that turns your MacBook notch into a control center: media control, calendar, AI chat, file shelf, and system monitoring.',
+    href: 'https://github.com/paarth-r/odin',
+    year: '2025',
+    tech: ['Swift', 'SwiftUI', 'macOS', 'Claude', 'Replicate'],
+    featured: false,
+    image: '/images/odin.png',
+    githubRepo: 'paarth-r/odin',
+    abstract: `**Odin** (odinv2) is a macOS utility that transforms your MacBook's notch into an interactive control center. Built with Swift and SwiftUI, it provides media control (Apple Music, Spotify, YouTube Music), calendar integration, **AI chat** powered by Claude via Replicate, a file shelf with AirDrop, and system monitoring—all from the menu bar.
+
+Hover to expand, swipe to open or close, and customize gestures and appearance. Chat history is stored locally; no telemetry. Requires macOS 14 Sonoma or later and a notch-equipped MacBook. Based on the [boring.notch](https://github.com/TheBoredTeam/boring-notch) foundation; open source under GPL-3.0.`,
+  },
+  {
+    id: 'blog',
+    title: 'Blog',
+    description:
+      'This site: personal blog and project portfolio built with Next.js and MDX. Live at paarth-r.vercel.app.',
+    href: 'https://github.com/paarth-r/blog',
+    year: '2025',
+    tech: ['Next.js', 'MDX', 'TypeScript', 'Vercel'],
+    featured: false,
+    githubRepo: 'paarth-r/blog',
+    abstract: `This **blog and portfolio** is the site you're on—[paarth-r.vercel.app](https://paarth-r.vercel.app). Built with **Next.js**, **MDX** for posts, and deployed on Vercel.
+
+It includes the main blog with a CV research timeline, project pages with GitHub version history and updates feeds, and a simple home page with featured projects and recent posts. Source on [GitHub](https://github.com/paarth-r/blog).`,
   },
   // {
   //   id: 'pose-lifting',
