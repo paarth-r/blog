@@ -75,7 +75,7 @@ Ongoing work focuses on robustness across body types and environments, and on ex
     href: 'https://github.com/paarth-r/odin',
     year: '2025',
     tech: ['Swift', 'SwiftUI', 'macOS', 'Claude', 'Replicate'],
-    featured: false,
+    featured: true,
     image: '/images/odin.png',
     githubRepo: 'paarth-r/odin',
     abstract: `**Odin** (odinv2) is a macOS utility that transforms your MacBook's notch into an interactive control center. Built with Swift and SwiftUI, it provides media control (Apple Music, Spotify, YouTube Music), calendar integration, **AI chat** powered by Claude via Replicate, a file shelf with AirDrop, and system monitoring—all from the menu bar.
@@ -90,7 +90,7 @@ Hover to expand, swipe to open or close, and customize gestures and appearance. 
     href: 'https://github.com/paarth-r/blog',
     year: '2025',
     tech: ['Next.js', 'MDX', 'TypeScript', 'Vercel'],
-    featured: false,
+    featured: true,
     githubRepo: 'paarth-r/blog',
     abstract: `This **blog and portfolio** is the site you're on—[paarth-r.vercel.app](https://paarth-r.vercel.app). Built with **Next.js**, **MDX** for posts, and deployed on Vercel.
 
