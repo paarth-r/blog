@@ -91,6 +91,7 @@ Hover to expand, swipe to open or close, and customize gestures and appearance. 
     year: '2025',
     tech: ['Next.js', 'MDX', 'TypeScript', 'Vercel'],
     featured: true,
+    image: '/images/blog.png',
     githubRepo: 'paarth-r/blog',
     abstract: `This **blog and portfolio** is the site you're on—[paarth-r.vercel.app](https://paarth-r.vercel.app). Built with **Next.js**, **MDX** for posts, and deployed on Vercel.
 
