@@ -97,6 +97,20 @@ Hover to expand, swipe to open or close, and customize gestures and appearance. 
 
 It includes the main blog with a CV research timeline, project pages with GitHub version history and updates feeds, and a simple home page with featured projects and recent posts. Source on [GitHub](https://github.com/paarth-r/blog).`,
   },
+  {
+    id: 'impostor',
+    title: 'Impostor',
+    description:
+      'A local party game: one word, one hint, one impostor. Everyone else knows the word; the impostor only sees the hint. Discuss and vote to find the impostor.',
+    href: 'https://github.com/paarth-r/impostor',
+    year: '2025',
+    tech: ['Next.js', 'TypeScript', 'Tailwind'],
+    featured: true,
+    githubRepo: 'paarth-r/impostor',
+    abstract: `**Impostor** is a local party game I built for friends—inspired by the viral "impostor game." One word, one hint, one impostor: everyone but the impostor sees the word; the impostor only sees the hint. Players discuss and vote to find the impostor.
+
+Run it locally: \`npm install\` and \`npm run dev\`. The server listens on localhost and your local IP so phones and other devices on the same Wi‑Fi can join. The host uses the admin panel (localhost only) to set the word and hint, assign the impostor, start the round, then run voting or reveal. Game state is in-memory, so a server restart or **Reset game** clears everyone; players can rejoin. Source on [GitHub](https://github.com/paarth-r/impostor).`,
+  },
   // {
   //   id: 'pose-lifting',
   //   title: '3D pose & motion',

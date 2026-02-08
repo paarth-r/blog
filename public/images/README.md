@@ -12,6 +12,7 @@ Use the same name as the project `id` in `app/data/projects.ts`:
 | hyperform   | `hyperform.png`    |
 | odin        | `odin.png`         |
 | blog        | `blog.png`         |
+| impostor    | `impostor.png`     |
 
 Supported formats: `.png`, `.jpg`, `.jpeg`, `.webp`
 
