@@ -105,7 +105,7 @@ It includes the main blog with a CV research timeline, project pages with GitHub
     href: 'https://github.com/paarth-r/impostor',
     year: '2025',
     tech: ['Next.js', 'TypeScript', 'Tailwind'],
-    featured: true,
+    featured: false,
     githubRepo: 'paarth-r/impostor',
     abstract: `**Impostor** is a local party game I built for friends—inspired by the viral "impostor game." One word, one hint, one impostor: everyone but the impostor sees the word; the impostor only sees the hint. Players discuss and vote to find the impostor.
 
