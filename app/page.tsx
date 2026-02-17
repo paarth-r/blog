@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { BlogPosts } from 'app/components/posts'
 import { ProjectPortfolio } from 'app/components/projects'
-import { GitHubContributionsGrid } from 'app/components/github-contributions-grid'
 
 export default function Page() {
   return (
@@ -10,7 +9,7 @@ export default function Page() {
         <h1 className="mb-4 text-2xl font-semibold tracking-tighter">
           Paarth Rajpal
         </h1>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400">
+        <p className="text-neutral-600 dark:text-neutral-400">
           {`I'm a student developer exploring computer vision, robotics, and AI — and their intersection. 
           I spend a lot of my time building, trying to solve real-world problems through research and SOTA technologies
           —whether it's improving how robots see the world, or using CV and AI to make fitness more accessible.
@@ -31,9 +30,6 @@ export default function Page() {
             View all projects →
           </Link>
         </p>
-        <div className="mt-8">
-          <GitHubContributionsGrid />
-        </div>
       </div>
 
       <div>
