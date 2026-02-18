@@ -25,8 +25,8 @@ function ArrowIcon() {
 
 export function ProjectCard({ project }: { project: Project }) {
   const content = (
-    <div className="group flex flex-col gap-1 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 p-4 transition-colors hover:border-neutral-300 hover:bg-neutral-100/80 dark:hover:border-neutral-700 dark:hover:bg-neutral-800/80">
-      <div className="flex items-baseline justify-between gap-2">
+    <div className="group flex h-[220px] flex-col gap-1 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 p-4 transition-colors hover:border-neutral-300 hover:bg-neutral-100/80 dark:hover:border-neutral-700 dark:hover:bg-neutral-800/80">
+      <div className="flex shrink-0 items-baseline justify-between gap-2">
         <h3 className="font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
           {project.title}
         </h3>
@@ -36,11 +36,11 @@ export function ProjectCard({ project }: { project: Project }) {
           </span>
         )}
       </div>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="min-h-0 flex-1 overflow-hidden text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">
         {project.description}
       </p>
       {project.tech && project.tech.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-auto flex shrink-0 flex-wrap gap-1.5">
           {project.tech.map((t) => (
             <span
               key={t}
@@ -51,7 +51,7 @@ export function ProjectCard({ project }: { project: Project }) {
           ))}
         </div>
       )}
-      <span className="mt-2 flex items-center text-sm font-medium text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
+      <span className="mt-auto flex shrink-0 items-center text-sm font-medium text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
         <ArrowIcon />
         <span className="ml-1.5">View project</span>
       </span>
