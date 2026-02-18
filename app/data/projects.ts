@@ -68,6 +68,20 @@ We apply state-of-the-art pose models to analyze movement and give users actiona
 Ongoing work focuses on robustness across body types and environments, and on expanding the movement library. Live at [hyperformfit.com](https://hyperformfit.com).`,
   },
   {
+    id: 'flowstate',
+    title: 'Flowstate',
+    description:
+      'A focus app designed to fix attention spans through incentivization, gamification, and a strict five-minute daily limit. Launch soon.',
+    year: '2025',
+    tech: ['React Native', 'Supabase', 'Stripe', 'Productivity'],
+    featured: true,
+    abstract: `**Flowstate** is a focus app built to repair attention spans. It uses **incentivization** and **gamification** to make deep work rewarding—and you can only use it for **five minutes a day**.
+That's all it needs. Launch soon.`,
+    updates: [
+      { date: '2025-02-05', text: 'Flowstate in development—launch soon.' },
+    ],
+  },
+  {
     id: 'odin',
     title: 'Odin',
     description:
@@ -75,7 +89,7 @@ Ongoing work focuses on robustness across body types and environments, and on ex
     href: 'https://github.com/paarth-r/odin',
     year: '2025',
     tech: ['Swift', 'SwiftUI', 'macOS', 'Claude', 'Replicate'],
-    featured: true,
+    featured: false,
     image: '/images/odin.png',
     githubRepo: 'paarth-r/odin',
     abstract: `**Odin** (odinv2) is a macOS utility that transforms your MacBook's notch into an interactive control center. Built with Swift and SwiftUI, it provides media control (Apple Music, Spotify, YouTube Music), calendar integration, **AI chat** powered by Claude via Replicate, a file shelf with AirDrop, and system monitoring—all from the menu bar.
