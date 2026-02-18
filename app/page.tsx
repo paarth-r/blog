@@ -22,7 +22,7 @@ export default function Page() {
         <h2 className="mb-4 text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
           Projects
         </h2>
-        <div className="mt-8 mb-8">
+        <div className="mt-4 mb-4">
           <GitHubContributionsGrid />
         </div>
         <ProjectPortfolio featuredOnly />
