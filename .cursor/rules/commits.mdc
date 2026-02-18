@@ -1,0 +1,9 @@
+---
+description: Do not add Co-authored-by or Cursor attribution to commits
+alwaysApply: true
+---
+
+# Commit messages
+
+- **Never** add a `Co-authored-by:` line (or any Cursor/IDE attribution) to commit messages.
+- Use plain commit messages only, e.g. `git commit -m "message"` with no trailer lines.

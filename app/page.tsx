@@ -22,6 +22,9 @@ export default function Page() {
         <h2 className="mb-4 text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
           Projects
         </h2>
+        <div className="mt-8">
+          <GitHubContributionsGrid />
+        </div>
         <ProjectPortfolio featuredOnly />
         <p className="mt-4">
           <Link
@@ -31,9 +34,7 @@ export default function Page() {
             View all projects →
           </Link>
         </p>
-        <div className="mt-8">
-          <GitHubContributionsGrid />
-        </div>
+        
       </div>
 
       <div>
