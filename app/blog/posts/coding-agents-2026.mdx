@@ -1,0 +1,41 @@
+---
+title: 'Coding Agents in 2026: What Actually Works'
+publishedAt: '2026-02-19'
+summary: 'AI coding agents have been everywhere for a year. Here's an honest breakdown of what I actually use, what I've stopped trusting, and where the hype still hasn't caught up to reality.'
+---
+
+A year ago I wrote about vibe coding—AI-assisted generation as a powerful ally, not a replacement. That framing still holds. But the tools have changed a lot. Coding agents have gone from "impressive demo" to "sitting in my terminal 24/7," and I've built up enough reps to say something honest about them.
+
+I use these tools constantly. Building Hyperform, doing FRC vision work, writing research scripts. That's the context. Here's what I've found.
+
+## What Actually Works
+
+**Boilerplate and scaffolding.** This is the obvious one, but it's genuinely good now. Spinning up a new Next.js route, writing CRUD endpoints, setting up a Dockerfile—agents handle this faster than I can think through it. I don't review it line by line anymore. I skim it, run it, and move on. That's a real time save.
+
+**Debugging with a full codebase in context.** The shift from autocomplete to agents with long context windows is massive. When I paste in a traceback and say "here's the full module it's coming from," the response quality jumps. It's not always right, but it's right enough often enough that it's the first thing I do when something breaks.
+
+**Translating between languages.** I write a lot of Python for models and a lot of TypeScript for frontend. When I need to port logic, agents are nearly perfect. The conversion from numpy slicing to tensor ops is tedious; letting an agent do it is obvious.
+
+## What I've Stopped Trusting
+
+**Architecture decisions.** Agents will confidently propose an approach that sounds clean and falls apart when you think about it for five minutes. They're optimizing for "sounds correct" not "will hold up." Any time I ask "how should I structure this?", I use the output as one input, not the answer.
+
+**Anything with side effects I don't understand.** If an agent writes a migration, database query, or auth flow and I can't trace what it's doing, I don't ship it. I've been burned. The output looks fine until it doesn't, and "the agent wrote it" is not a debugging strategy.
+
+**Long multi-step plans.** The further out you go, the more drift compounds. Agents are good at step N. They're unreliable at steps N+3 through N+10. I break tasks down and feed them incrementally.
+
+## The Part That Surprises People
+
+The biggest gain from coding agents isn't speed—it's **staying in a problem**. When you're deep in something and hit a wall, the old pattern was to break focus: Google it, read a Stack Overflow thread, lose the thread of thought. Now I can ask and stay present. That's worth more than the raw throughput.
+
+The downside of staying in a problem is that you can also stay in a *wrong* problem for longer. If your mental model is off, agents will happily help you build in the wrong direction faster. The discipline required is knowing when to step back and check the map.
+
+## Where I Think This Is Going
+
+The gap between "uses AI to code faster" and "doesn't" is going to become the same kind of gap as "uses version control" versus "doesn't." Not a philosophical position—just a fact of the workflow. But the ceiling is set by the person, not the tool. Agents amplify. What they amplify is up to you.
+
+I'm still learning how to use these things well. That's probably the honest state everyone is in.
+
+---
+
+*More thoughts on building Hyperform in the next one. The product side has had an interesting couple of months.*

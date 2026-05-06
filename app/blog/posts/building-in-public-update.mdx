@@ -1,0 +1,45 @@
+---
+title: 'Six Months of Building: What I Know Now That I Didn't Then'
+publishedAt: '2026-04-30'
+summary: 'A state-of-the-stack update on Hyperform, what changed since Part 1, and the things I got badly wrong in the early months.'
+---
+
+Six months ago I wrote Part 1 of the Hyperform series. I was just starting to build, full of momentum, and working on a computer vision pipeline that I was pretty sure was going to work cleanly. Some of it did. A lot of it didn't.
+
+This is the honest accounting.
+
+## What I Got Wrong
+
+**The first version of the architecture was too clever.** I ran too much on the client, tried to keep latency low by avoiding a server round-trip, and ended up with a pipeline that worked fine on my laptop and was inconsistent on everything else. GPU memory, browser threading, JS bundle size—there were too many variables I couldn't control. Moving the heavy lifting server-side and shipping overlay coordinates to the client fixed this. I should have done it from the start.
+
+**I optimized for the model I knew instead of the user I wanted.** I've said this in Part 3, but it's worth repeating. The first build was built for a version of me: someone who understood joint angles and temporal consistency in pose estimation. Real users don't think in those terms. The rebuild was an exercise in translating model output into human language. "Your hips are dropping at the bottom of the squat" is more useful than "Hip keypoint confidence 0.74, joint angle deviation 11°."
+
+**I underestimated how much distribution matters.** Getting something in front of real users is harder than building it, and I didn't treat that as a problem to solve with the same rigor I applied to the inference pipeline. Finding users, getting them to try it, getting them to come back—those are engineering problems too. I was slow to take them seriously.
+
+## What I Got Right
+
+**Building in public forced clarity.** Writing these posts made me state things clearly enough that I could tell when I didn't understand them. Multiple times writing a post revealed that I'd glossed over a decision without thinking it through. That's worth a lot.
+
+**The technical fundamentals held.** The 2D-to-3D lifting approach, the temporal context model, the joint angle feedback logic—the core of the CV pipeline has been stable. I've iterated on it, made it faster, made it more robust. But I haven't had to rethink the approach. Starting from strong technical foundations meant the rebuilds were around the product layer, not the model layer.
+
+**Staying small stayed sane.** I'm solo on this. That's a constraint and a feature. Every decision is mine to make and mine to live with. No consensus required, no coordination overhead. For an early-stage technical product, that's genuinely faster.
+
+## Where It Is Now
+
+Inference at ~95ms on the server for a single-camera session. Onboarding conversion is up significantly from where it was in December. A small group of consistent users—mostly fitness-oriented people who found it through word of mouth—giving real feedback.
+
+Not scaling. Not viral. But real.
+
+The next phase is figuring out distribution more seriously. That's the problem I haven't solved well yet and it's the one that determines whether Hyperform becomes a real thing or stays a technically impressive project.
+
+## The Thing About Building Young
+
+People ask me sometimes if it's weird to be doing this in high school. Honest answer: the thing that's weird is how normal it feels. You find a problem, you start building, you talk to people, you adjust. The loop is the same regardless of who's running it. The differences are mostly in experience and network—which matter, but are also learnable.
+
+If you're in high school and you want to build something, the advice is boring: start smaller than you think, ship something real to someone who isn't your friend, and don't stop when it gets uncomfortable.
+
+That's it.
+
+---
+
+*Part 4 of the series. Part 1: [here](/blog/hyperform). Part 2: [here](/blog/hyperform-p2). Part 3: [here](/blog/hyperform-p3). Next post will be on the CVPR 2026 program — it drops in May.*

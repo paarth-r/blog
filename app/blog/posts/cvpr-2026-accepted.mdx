@@ -1,0 +1,47 @@
+---
+title: 'CVPR 2026 Accepted Papers: What Made It In and Why It Matters'
+publishedAt: '2026-03-05'
+summary: 'CVPR 2026 acceptances are out. Here's what the accepted list tells us about where computer vision is actually headed—and what it means for practitioners.'
+---
+
+**CVPR 2026** acceptances just dropped. This is the one I wait for every year. CVPR is the flagship venue—the papers that get in here set the agenda for the next cycle of research, tooling, and applications. Scanning the accepted list is one of the best things you can do if you want to understand where the field is actually going versus where the hype says it's going.
+
+I've been going through the list. Here's what's standing out.
+
+## The Big Patterns
+
+**Embodied and interactive vision is no longer "emerging."** There's a critical mass of papers combining perception with action: affordance prediction, manipulation, navigation, and interactive environments. A year ago this felt like a promising thread. Now it's a full lane. The robotics x vision intersection is real and it's CVPR-level work.
+
+**Efficiency is a first-class research goal.** Not just as a constraint in ablations—as the central contribution. Papers are getting in specifically because they make a model smaller, faster, or more deployable. That's new. For a while, "efficient" was something you mentioned but not the headline. That's shifted. Edge deployment is a legitimate research direction now.
+
+**Multimodal is everywhere, but the interesting work is narrower.** General VLMs are table stakes. The papers that are getting in are doing something specific: structured reasoning, grounding in 3D, compositionality, calibration. The generic "we scale a VLM" paper is having a harder time unless the scale itself is remarkable. The field is maturing.
+
+## What's Less Represented
+
+Detection and segmentation papers—the backbone of CVPR for years—are still there but the novelty bar is high. If you're not doing something architecturally different or tackling a problem that classic methods fundamentally can't handle, it's a competitive submission. The classic formulation of "we improve mAP by X on COCO" is a harder sell.
+
+Pure NAS and architecture search has mostly receded. The energy has moved into adaptation, distillation, and training-efficient methods instead.
+
+## What I'm Reading Closely
+
+Papers on **3D perception from sparse inputs**—relevant to what I work on, and the progress has been real. Methods that work with monocular or sparse multi-view inputs are closing the gap with full LiDAR setups in structured scenes.
+
+**Temporal modeling for video**—state-space architectures are showing up in video understanding in interesting ways. The attention x state-space hybrid designs are worth tracking.
+
+**Calibration and uncertainty**—models that know what they don't know. This is the part of production ML that actually matters and gets the least attention in papers. Glad to see it getting a slot.
+
+## On Actually Reading CVPR Papers
+
+I'll be honest: I don't read the majority of accepted papers. Nobody does. What I do is:
+
+1. Read the titles and abstracts of everything in my domains
+2. Pull the full paper for anything that's addressing a problem I've hit in practice
+3. Read the method section and figures of adjacent work to keep my mental model current
+
+That's probably 40-50 papers worth of engagement from an acceptance list of ~2,000. The rest I'll encounter later—through citations, implementations, or someone writing a good summary.
+
+If you're in CV, now is when to set up your reading list. The program will be public before June, and the preprints are already hitting arXiv.
+
+---
+
+*More from the CV Research Timeline. The conference itself is in June—I'll write about the program when it's out.*

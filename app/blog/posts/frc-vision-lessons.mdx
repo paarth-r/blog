@@ -1,0 +1,39 @@
+---
+title: 'What FRC Taught Me About Writing Software That Has to Work'
+publishedAt: '2026-04-02'
+summary: 'Building vision systems for a competition robot under match pressure is a completely different discipline than building software in a normal environment. Here's what transfers.'
+---
+
+FRC season just wrapped. Six weeks of build, several weeks of competition, and I've had a week to decompress. Every year I learn something from it that I don't learn anywhere else. This year what stuck was the difference between software that works in testing and software that **has to work**—in a 2.5-minute match, in a loud arena, with people counting on it.
+
+I run vision and AI for Team 254. Our target this year was Jetson Orin Nano, running a pose estimation pipeline for field element detection with the same core ideas I use in Hyperform—but on hardware that weighs less than a pound, bolted to a robot, in a building full of RF interference.
+
+## The Constraint That Changes Everything
+
+In competition, you don't get to debug. The match starts, the robot goes, and whatever's running is what you get. There's no "let me just restart that service" or "it'll be fixed in the next build." The software either works or it doesn't, and the consequence of "doesn't" is immediate and public.
+
+That changes how you write software. Not in abstract ways—in concrete ones.
+
+**You log everything, obsessively.** Not to debug in the moment, but to reconstruct what happened after. Good telemetry is how you turn "the robot did something weird" into "the pose estimate degraded because the field lighting dropped below threshold at match time T+47s." Without the log, you're guessing.
+
+**You write defensive defaults.** If the vision pipeline misses a detection, the robot needs to do something reasonable—not crash, not freeze, not make an aggressive guess. We hard-code fallback behaviors for every state where perception can fail. This is the thing I keep failing to do in product software, because in product software a wrong answer has a much lower cost than it does on a field.
+
+**You test at the edge of what you can measure.** Controlled environments are lying to you. The testing that actually matters is: noisy network, poor lighting, sub-optimal camera angle, high CPU load from other processes. The happy path doesn't tell you anything useful.
+
+## What Actually Transfers
+
+**Build systems that degrade gracefully.** A vision system that fails hard is worse than one that fails slowly with reasonable defaults. In Hyperform terms: if the pose estimate is low-confidence, don't show wrong feedback—show nothing, or show a confidence indicator. That's a FRC lesson I shipped directly into the product.
+
+**Treat latency as a hard constraint, not a goal.** On the robot, >50ms end-to-end was a real problem for closed-loop control. That discipline made me more serious about the latency targets in Hyperform. "It's fast enough" is not an engineering spec.
+
+**Every component needs a defined failure mode.** I didn't think about this systematically in Hyperform until FRC forced me to think about it for every single subsystem on the robot. Now I map it. If X fails, what does Y do? If the camera feed drops, what does the inference pipeline return? If the backend is unreachable, what does the client show?
+
+## The Culture of It
+
+There's something specific about FRC that I haven't found in a startup or personal project context: a team that's depending on you, in real time, in a high-stakes environment. The kind of focus that produces is different. I'm not saying startup building doesn't matter—it does. But there's a sharpness to "the match starts in 3 minutes and this process isn't running" that is extremely clarifying about what actually matters.
+
+I try to carry some of that clarity into regular work. It fades, but the memory of it is useful.
+
+---
+
+*Season's done. Back to Hyperform full-time. More in the next post.*

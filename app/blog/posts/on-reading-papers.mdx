@@ -1,0 +1,48 @@
+---
+title: 'On Reading Papers: What I Wish I Knew Earlier'
+publishedAt: '2026-04-16'
+summary: 'Most people either read papers wrong or avoid them entirely. Here's the system I've developed for getting real value from research without spending all day on it.'
+---
+
+Reading research papers is a skill that nobody really teaches you. You're either thrown into it—someone hands you a PDF and expects you to understand it—or you avoid it entirely and work only from implementations, blog posts, and second-hand summaries.
+
+I've done both. The avoiding-papers phase lasted longer than I'd like to admit. Here's what I've figured out since then.
+
+## Why Most People Struggle
+
+The paper format is not designed for comprehension. It's designed for peer review. The structure—abstract, intro, related work, method, experiments, conclusion—is optimized for convincing expert reviewers that the contribution is novel and the evaluation is fair. It's not optimized for a practitioner trying to understand if this technique is relevant to their problem.
+
+Once you accept that, you stop reading linearly and everything gets faster.
+
+## The System I Use
+
+**Step 1: Abstract + Figures only.** I read the abstract to understand the claim. Then I look at every figure and table, ignoring the captions at first, then reading them. The figures in a good paper tell you the whole story visually. By the time I'm done with the figures, I know whether I care about the method or just the result.
+
+**Step 2: Introduction, then jump to the method.** The intro is where the authors tell you *why* the problem matters—useful for understanding the framing. Related work, I skip unless I need the literature context. Method section is where the contribution actually lives.
+
+**Step 3: Read the experiments like a skeptic.** The ablation studies are more interesting than the main results table. Main results are cherry-picked to look good. Ablations tell you which parts of the method actually matter—and which parts are expensive overhead with small gains.
+
+**Step 4: Conclusion + limitations.** Authors are legally required (not literally) to bury important limitations in this section. Read it.
+
+## What I Actually Look For
+
+- **What assumption are they making that I can't make?** Controlled environments, clean datasets, specific hardware. If the paper assumes a depth sensor and I only have RGB, how much of the method still applies?
+- **What's the compute cost?** Not always in the paper. Sometimes in the appendix. Sometimes you have to run it yourself to find out.
+- **Is there code?** Papers with code are worth reading. Papers without code get more skepticism.
+- **Is the comparison fair?** Look at what baselines they chose. Strong papers compare against the hardest relevant baselines. Weak papers pick convenient ones.
+
+## Reading Volume
+
+I probably read—at the level of full engagement—20-30 papers a year. I skim abstracts for maybe 300-400. I read figures for maybe 80-100. The filtering happens at each step.
+
+For CVPR this year I'll probably read 4-5 papers fully, in areas directly relevant to Hyperform and FRC. Everything else I track at the abstract level and pull if it becomes relevant.
+
+## The Part That Took Longest to Learn
+
+The most useful thing a paper gives you is usually not the method—it's the **framing of the problem.** A paper that articulates a problem well, even if the solution is mediocre, teaches you how to think about that class of problems. The ones that reframe something you thought you understood are rare and valuable.
+
+That's what I'm actually hunting for.
+
+---
+
+*Working through the CVPR 2026 preprints now. A few things on my reading list—will write about what stands out.*

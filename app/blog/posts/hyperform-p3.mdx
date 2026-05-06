@@ -1,0 +1,45 @@
+---
+title: "The Journey: Building Hyperform (Part 3) — When the Product Fights Back"
+publishedAt: '2026-03-19'
+summary: "Six months into Hyperform and the product has started pushing back. Here's what happened when I went from building features to trying to get real people to use them."
+---
+
+Parts [1](/blog/hyperform) and [2](/blog/hyperform-p2) were mostly about building. This one is about what happens when you stop building long enough to realize nobody has actually used the thing you built.
+
+That's where I've been for the last two months.
+
+## The Feature Trap
+
+I shipped the MVP in December. Pose detection working, joint angle overlays, rep counter, a basic session history. It was functional. I was proud of it. And then I sent it to people and mostly heard... nothing.
+
+Not rejection. Just silence. Which is worse in some ways, because you can't argue with silence.
+
+The temptation in that moment is to build more features. That's where my instincts went. "Maybe they need better charts. Maybe the landing page copy is off. Maybe I need a mobile app." I started three of those things before I caught myself.
+
+The actual problem was simpler and more uncomfortable: **I hadn't talked to users enough before building.** The form feedback was technically impressive and practically unclear to people who weren't already thinking about biomechanics. I built for a user I understood—me—not for the users I wanted.
+
+## What I Changed
+
+I stopped building for three weeks. That was hard. Building feels productive even when it isn't. Instead I did:
+
+- **Five user interviews.** Not surveys. Phone calls where I asked people to use Hyperform while I watched and didn't say anything. What they struggled with, what they skipped, what they expected that wasn't there.
+- **Rewrote the onboarding.** The first 90 seconds is where I was losing people. The pose calibration step was technical and unfamiliar. I rebuilt it around a single clear action: "Stand here, do a squat, see what we see."
+- **Cut three features.** The session export, the trainer share link, and the progress chart (for now). Not because they're bad—because they were noise for someone who hadn't gotten value from the core loop yet.
+
+## What's Technically Different
+
+The inference pipeline got faster. I was at ~180ms per frame on a mid-range laptop; I'm now at ~110ms by batching the 2D lifting stage differently and reducing the context window for the temporal model during calibration. Still above my 100ms target for real-time but getting close.
+
+I also moved the architecture toward a backend-first model instead of running everything client-side. I was trying to run too much in the browser. The latency was acceptable, the memory usage wasn't. Now the heavy lifting happens server-side, client gets the overlay coordinates.
+
+## The Honest State
+
+Users: still small. Product: meaningfully better than it was. Understanding of the problem: dramatically better than it was in December.
+
+This is the part of startup building that doesn't make it into the posts about "how I built X in Y days." The weeks where you're not sure if you're on the right track and the only way to find out is to keep going.
+
+I'm still in it. Part 4 will either be about early traction or about pivoting—I don't know which yet.
+
+---
+
+*Following along? Previous parts are in the blog. DM me if you want early access—I'm looking for people serious about form training or PT who'll give real feedback.*
