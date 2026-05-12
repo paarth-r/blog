@@ -1,0 +1,88 @@
+---
+title: 'Building a Second Brain with Claude as the Writer'
+publishedAt: '2026-05-12'
+summary: 'Most personal knowledge systems fail because you have to be the librarian. I built one where Claude does the filing, synthesizing, and querying—and it changed how I observe my own life.'
+---
+
+Your brain is a terrible database. It's an incredible processor—it finds patterns, makes intuitive leaps, connects ideas across domains in ways no system can replicate. But ask it to retrieve a specific insight you had six weeks ago, cross-reference it with something you read in a journal entry, and surface it on demand? It fails almost every time.
+
+This isn't a new problem. People have been building second brains—personal knowledge management systems—for decades. Notion, Roam, Obsidian, Zettelkasten. The ideas are all good. The execution almost always breaks down for the same reason: **you have to be the librarian.** You have to file things, link them, tag them, synthesize them. That friction kills the habit before it ever becomes a system.
+
+I wanted something different. So I built a second brain where I'm the source of raw material, and Claude is the librarian.
+
+## The Architecture
+
+The system lives inside an Obsidian vault, but Obsidian is just the interface. The actual structure is two directories with a strict invariant between them.
+
+```
+secondbrain/
+├── raw/
+│   ├── journals/       ← daily journal entries (YYYY-MM-DD.md)
+│   ├── articles/       ← web clips and reading notes
+│   ├── podcasts/       ← audio/podcast notes
+│   └── pdfs/           ← extracted text from documents
+└── wiki/
+    ├── index.md        ← master catalog of all pages
+    ├── log.md          ← append-only operations log
+    ├── goals/          ← one page per active goal
+    ├── health/         ← physical and mental health patterns
+    ├── people/         ← anyone who appears meaningfully across sources
+    ├── reflections/    ← synthesized patterns across multiple sources
+    └── topics/         ← projects, interests, everything else
+```
+
+The invariant: **`raw/` is immutable. `wiki/` belongs entirely to Claude.**
+
+I drop files into `raw/` and never touch them again. Claude reads them and writes everything in `wiki/`. I never manually create or edit a wiki page. This isn't just a workflow preference—it's an architectural decision with real consequences.
+
+## The Four Operations
+
+The system defines four operations, each triggered by a different kind of input:
+
+**Ingest** — I drop a file in `raw/` and say "process it." Claude reads the source in full, identifies which domains it touches (goals, health, people, reflections, topics), writes or updates the relevant wiki pages, updates the master index, and appends a timestamped entry to the log. A single journal entry typically touches 5–10 pages. I never have to decide what to emphasize—Claude files it, I review.
+
+**Query** — I ask a question about myself. "What's been blocking me on this project?" "How has my sleep correlated with my productivity this month?" Claude reads the index, identifies relevant pages, reads them, and synthesizes an answer with wikilink citations. If the answer is analytically valuable—a pattern, a comparison, an insight—it saves it as a new reflection page.
+
+**Conversation** — I tell Claude something directly, without writing a source file. "I decided to drop this project." "I've been sleeping badly this week." Claude extracts the key information, updates the relevant wiki pages as if it were an ingested source, and logs it. No raw file is created—the log entry is the audit trail.
+
+**Lint** — A health check on the wiki itself. Claude scans for contradictions between pages, orphan pages with no inbound links, concepts that appear frequently but lack their own page, and goals that haven't been updated in over 30 days. It surfaces findings and asks which to fix.
+
+## The Design Decisions That Actually Matter
+
+A lot of this sounds straightforward until you think about why specific choices were made.
+
+**Why is `raw/` immutable?**
+It creates a clean trust boundary. My sources are ground truth—they represent what I actually wrote, read, or thought at a specific point in time. If Claude's synthesis is ever wrong or stale, I can always go back to the source. More importantly, it means Claude's wiki pages are *interpretations*, not the record itself. That distinction matters when you're querying patterns across months of data.
+
+**Why is the log append-only?**
+Temporal integrity. Every operation gets a timestamped entry: what happened, when, and what it touched. You can reconstruct the entire history of the wiki from the log. Editing or deleting log entries would break that. It's the same reason write-ahead logs exist in databases—the log is the source of truth for what happened, separate from the current state.
+
+**Why does Claude write wiki pages instead of just answering questions?**
+This is the key distinction from just chatting with an AI. When Claude synthesizes something, it writes it down. That means the synthesis *accumulates* across conversations. Every time I ingest a new journal, it updates existing pages with new evidence. A reflection page on a recurring theme gets richer over time. If Claude only answered questions ephemerally, every conversation would start from scratch. Persistent synthesis is the whole point.
+
+**Why wikilinks instead of tags or folders?**
+Obsidian renders wikilinks as a graph. Every `[[page-name]]` reference creates an edge. Over time, the wiki develops a topology—clusters of heavily-linked pages reveal what's actually central to how I think, not what I *filed* as important. Tags and folders impose hierarchy upfront. Wikilinks let structure emerge from the content.
+
+## What It Actually Looks Like
+
+I write a journal entry on a rough week. It mentions a decision I made about a project, a conversation with someone, some frustration about sleep, a realization about how I approach deadlines. I drop it in `raw/journals/` and say "process it."
+
+Claude reads it and touches eight pages: the project's topic page gets updated with the decision and the context behind it, the person page gets a new interaction entry, the health page gets a data point, an existing reflection on deadline patterns gets new evidence appended, the index gets updated, the log gets an entry.
+
+Two months later, I ask: "What's the pattern when I'm struggling with a deadline?" Claude reads the reflection page, pulls in the relevant health and goals pages, and gives me an answer with citations. It's not retrieval—it's synthesis. And it's drawing on every journal entry, article, and conversation that touched that theme, across the entire history of the system.
+
+That's the difference between a filing cabinet and a second brain.
+
+## The Philosophy
+
+Here's what I didn't expect: the system changed how I *observe* my own life, not just how I store it.
+
+When you know that what you write will be filed, synthesized, cross-referenced, and made queryable—you start noticing things more carefully. You become a better observer of your own patterns. Not because the tool forces you to, but because you've built a system you actually trust to hold the signal. There's no anxiety about losing an insight. It'll be there.
+
+Most knowledge management tools feel like obligation. This one feels like infrastructure. The difference is that I'm not the one doing the work of maintaining it—I'm just living my life and feeding the system raw material.
+
+A useful second brain shouldn't demand your attention. It should be there when you need it, silently accumulating everything you've thought and done, ready to surface it in a way your biological memory never could. That's what I built. And honestly, it's one of the more useful things I've made.
+
+---
+
+*The schema and CLAUDE.md that power this system live in my Obsidian vault. If you want to build something similar, the architecture is straightforward—the hardest part is committing to never manually editing the wiki.*
