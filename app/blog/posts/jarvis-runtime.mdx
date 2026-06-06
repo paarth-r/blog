@@ -1,0 +1,86 @@
+---
+title: "JARVIS, For Real This Time: Building the Runtime"
+publishedAt: "2026-06-06"
+summary: "A year ago I wrote about the dream of a gesture-aware JARVIS. This is the build log of the runtime I actually shipped — stereo 3D hand tracking to cursor, clicks, and pointing — plus the three nasty bugs that almost stopped it."
+---
+
+A year ago I [wrote about the dream](/blog/jarvis): a gesture-aware, JARVIS-style
+assistant you control with your hands in 3D. This is the follow-up where it stops
+being a dream. The core runtime is real, open source, and on GitHub. Here's how it
+came together — and the bugs that almost killed it.
+
+## The shape of it
+
+The old version was two scripts duct-taped together. The rewrite is a proper runtime:
+a single asyncio event loop with typed pub/sub events as the spine. Every capability
+is a module that subscribes to event types and publishes new ones.
+
+```
+Camera ──FrameEvent──▶ HandPose ──PoseEvent──▶ StereoFusion ──WorldPoseEvent──▶ GestureHCI / Pointing
+```
+
+The key design decision: **`WorldPoseEvent` is the boundary.** Everything before it is
+per-camera and 2D. Everything after it lives in shared 3D world coordinates and never
+has to think about cameras again. Two cameras each run MediaPipe; a fusion module
+triangulates the matching landmarks into metric 3D.
+
+It's all test-driven — 60 tests, fully mocked, no camera or GUI in CI. That mattered
+more than I expected, because the bugs that actually hurt were *not* in the logic.
+
+## Bug 1: MediaPipe deadlocking my test suite
+
+The hand-tracking tests hung forever. Not failed — hung. A `faulthandler` dump showed
+the stack frozen inside pytest's shutdown, garbage-collecting a leaked MediaPipe
+`HandLandmarker` whose `close()` blocks on a future that never resolves. The tests
+created a real landmarker and never closed it; at interpreter exit, GC tried to, on
+the wrong thread, and froze.
+
+Fix: make landmarker creation overridable and mock it in unit tests — you don't need a
+7.8 MB model to test routing logic anyway. Lesson: a leaked GPU/graph object is a
+liability even when the test "passes."
+
+## Bug 2: two cameras, one segfault
+
+With the real rig connected, detection worked... until a hand appeared in *both*
+cameras at once. Then: segfault. Two `HandLandmarker` instances doing GPU work
+concurrently on macOS Metal — two GL contexts, one crash. My first fix (a thread per
+camera) didn't help, because the problem wasn't thread *affinity*, it was
+*concurrency*. The fix that worked: serialize all hand inference onto a single shared
+worker thread so the two landmarkers never touch the GPU at the same time. ~51 fps per
+camera, no crash.
+
+## Bug 3: "the detector sucks on mono — do we need color?"
+
+The cameras were mono global-shutter sensors. Detection felt terrible, and the obvious
+hypothesis was that MediaPipe's hand model wants color. Before buying hardware, I
+measured: capture frames, run detection three ways (raw, contrast-enhanced,
+histogram-equalized), report the hit rate.
+
+The first run said 0%. Then I looked at the actual frames — the cameras were aimed at
+the ceiling with no hand in view. With a hand actually in frame: **99% on raw mono.**
+The "problem" was framing and one camera being backlit by a window, not color. The
+real lever was the detection-confidence threshold, so I plumbed it through config and
+dropped the default. *Measure before you spend money.*
+
+## The payoff: seeing it in 3D
+
+The 3D visualizer runs in a spawned subprocess (matplotlib owns its own GUI loop, away
+from OpenCV and asyncio), fed just 21 points per frame over a drop-old queue. Two
+OpenCV windows show the live 2D detections; a third shows the triangulated hand
+skeleton you can drag to rotate.
+
+There's also a replay source — point a "camera" at a video file or image folder and the
+whole pipeline runs with no rig at all, which is how I keep building when the hardware
+isn't on my desk.
+
+## What's next
+
+- Charuco-calibrate the (now color) stereo pair so depth is metric, not just
+  shape-correct.
+- True ray *casting*: the pointing module emits a 3D ray; next is intersecting it with
+  on-screen targets to resolve *what* you're pointing at.
+- An LLM agent subprocess that turns intents into actions — the "voice + action" half
+  of the original dream.
+
+Jarvis is open source: [github.com/paarth-r/jarvis](https://github.com/paarth-r/jarvis).
+The dream's compiling.
