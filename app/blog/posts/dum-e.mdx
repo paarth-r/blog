@@ -1,0 +1,86 @@
+---
+title: "dum-e: Building a Smooth IK Controller for a $100 Robot Arm"
+publishedAt: "2026-06-15"
+summary: "How I built a jitter-free Xbox-driven inverse-kinematics controller for the LeRobot SO-101 arm — the architecture decision that made teleop feel connected, and what I'm scaffolding toward."
+---
+
+I named it after the clumsy robot arm from the Iron Man shop. That felt appropriate.
+
+**dum-e** is a library and CLI I built to control a [LeRobot SO-101](https://github.com/huggingface/lerobot) arm with an Xbox controller. The SO-101 is a 5-DOF hobby arm — six Feetech STS3215 servos, on the order of $100. Not a research-grade manipulator. The repo is at [github.com/paarth-r/Dum-E](https://github.com/paarth-r/Dum-E).
+
+The thing I actually spent the most time on wasn't IK. It was making teleop feel good, which turned out to be a distinct and interesting problem.
+
+## The jitter problem
+
+First pass: read joint positions from the arm, run IK to compute a target, write the new positions, repeat. Works. Also feels terrible. Every small motion has a buzz to it — the arm vibrates slightly instead of moving cleanly.
+
+The cause is obvious in retrospect: servo encoders are noisy. Not dramatically noisy, just a few tenths of a degree of noise per joint tick. When you read measured joint positions and immediately feed them back into your next IK solve, that noise propagates into your command. The arm is chasing a jittering target.
+
+The fix is the same one Stanford's [TidyBot++](https://tidybot2.github.io/) (Jimmy Wu, Jeannette Bohg, et al.) uses for their teleop system: **don't track measured joint feedback in the control loop**. Maintain an internal *commanded reference* — `q_ref` in the code — and integrate all motion from that. The servo feedback is used only for safety checks and at initialization. After that, the loop is open with respect to measurement noise.
+
+```python
+# The internal reference is what the loop slews and seeds IK from.
+# Noisy servo feedback never leaks into the command stream.
+self.q_ref = q_send.copy()  # advance the commanded reference (open-loop, noise-free)
+```
+
+You re-sync `q_ref` to the measured joints only on startup, mode-switch, or explicit re-zero. Otherwise it advances purely from commands.
+
+Pair that with a jerk limit — capping how fast the per-joint commanded velocity may *change* each tick, not just how fast it moves — and the buzz disappears. Instant direction reversals used to cause a sharp kick; now the arm accelerates and decelerates smoothly through them.
+
+```python
+def _limit_velocity_and_jerk(self, delta5):
+    v = np.clip(delta5, -c.joint_slew_deg, c.joint_slew_deg)      # velocity cap
+    dv = np.clip(v - self._prev_vel[:5], -c.joint_jerk_deg, c.joint_jerk_deg)  # jerk cap
+    v = self._prev_vel[:5] + dv
+    self._prev_vel[:5] = v
+    return v
+```
+
+The feel difference is noticeable. There's a quality that good teleoperated systems have that I'd describe as "connected" — you feel like you're holding the arm, not steering a noisy actuator. That's what this gets you.
+
+## The IK setup
+
+The arm is 5-DOF, which creates an annoying conflict in full-pose IK: you can't independently command both end-effector position and orientation on an arm with fewer than 6 joints. Trying to do both causes the solver to oscillate — position and orientation fight each other.
+
+The way out is to decouple them. The three shoulder/elbow joints position the wrist pivot; the two wrist joints (flex and roll) are jogged directly with the D-pad, independent of the position solver. Position IK is only over pan/lift/elbow, targeting the wrist link origin (which is invariant to wrist flex and roll). Orientation is never in the position solver's objective.
+
+For the IK solver itself I used damped-least-squares (DLS) over the position subproblem. The damping keeps the Jacobian well-conditioned near singularities instead of blowing up joint velocities.
+
+## The simulator
+
+One of the early constraints: I don't always have the arm at my desk. I needed a way to develop and test the whole control stack without hardware.
+
+`dume sim` launches a PyBullet GUI with a kinematic arm model, a grabbable object (dynamic rigid body with friction), and a synthetic end-effector camera. The Xbox controller drives the simulated arm with the same code path as the real arm — same controller, same IK, same config. The only difference is the `ArmIO` implementation (real serial vs. PyBullet joint state).
+
+This paid off quickly. I could iterate on the jerk limiter and the DLS damping without touching the real arm, and the tests run against the sim backend with no hardware required. About 90 tests total.
+
+## The flown-extrinsics idea
+
+The next thing I'm working on is depth perception for grasping. The plan is to mount an [Arducam UC-844](https://www.arducam.com/product/uc-844/) (1280x800 global-shutter mono, small enough to fit on the wrist link) at the end-effector.
+
+The usual approach to stereo depth is calibrate a stereo rig, fix the baseline, triangulate. That requires a known, rigid camera arrangement.
+
+The arm suggests a different approach: the arm already knows exactly where its own end-effector is, via forward kinematics. If I move the camera to two distinct end-effector poses — commanded poses, so the baseline is known to sub-degree accuracy from IK — I get a stereo pair with a known baseline and no rig calibration required. Just triangulate the object from the two views.
+
+I'm calling this "flown extrinsics." The extrinsic transform between the two views comes from FK, not from a calibration target. The tradeoff is that the scene needs to be static for the two captures (fine for pick-and-place). The payoff is that I don't need a stereo rig at all — the arm itself is the stereo rig.
+
+The scaffolding for this (`flown_stereo.py`, `test_flown_stereo.py`) is in the repo and the geometry tests pass. I haven't validated it on real hardware yet.
+
+## Where this is going
+
+The longer-term direction is toward imitation learning for grasping. The controller is already a reasonable teleop interface — comfortable to use, low jitter, good feel. That matters because demonstration quality sets the ceiling on what a learned policy can do.
+
+I've got scaffolding for episode recording (observations + actions in a compact custom format, with a LeRobot export adapter for training) and a diffusion-policy interface. The sim can render synthetic episodes. But I want to be clear about what exists and what doesn't: the data collection pipeline is in place, the learning infrastructure is scaffolded, and exactly zero episodes have been used to train anything. That's the next chapter.
+
+The spirit of what I'm building toward is the TidyBot++ result — a system where the moat is the demonstration data and the quality of the teleop interface that collected it, not a bespoke robot platform. The SO-101 is cheap enough that the constraint is data and policy, not hardware.
+
+## Honest state
+
+The new control-smoothing and perception work described here is sim-validated; re-testing it on the physical arm is the next step. The flown-extrinsics geometry is tested but unvalidated on real images. The learning scaffolding is written but not trained.
+
+This is a high school solo project. I'm not pretending it's more done than it is. But the architecture is sound, the teleop feel is good, and the path toward grasping-from-demonstration is clear.
+
+---
+
+*Code at [github.com/paarth-r/Dum-E](https://github.com/paarth-r/Dum-E).*
