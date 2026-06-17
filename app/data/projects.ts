@@ -31,20 +31,20 @@ export type Project = {
 export const projects: Project[] = [
   {
     id: 'jarvis',
-    title: 'JARVIS-style assistant',
+    title: 'Jarvis',
     description:
-      'Voice + gesture-aware assistant: 3D hand pose estimation, AR, and edge AI for controlling devices and interfaces without touching a screen.',
+      'An event-driven runtime that turns a stereo camera pair into a 3D hand interface—MediaPipe tracking triangulated to metric 3D, driving the cursor, pinch-click, and pointing.',
     href: 'https://github.com/paarth-r/jarvis',
-    year: '2025',
-    tech: ['Python', 'MediaPipe', 'Whisper', 'OpenXR', 'TCNN', 'RAG'],
+    year: '2026',
+    tech: ['Python', 'Stereo Vision', 'MediaPipe', 'asyncio', 'Triangulation'],
     featured: true,
     image: '/images/jarvis.png',
     githubRepo: 'paarth-r/jarvis',
-    abstract: `A modular assistant that fuses **voice commands** with **real-time 3D hand pose estimation** to interact with digital interfaces—controlling smart devices, launching scripts, or manipulating AR objects without touching a screen.
+    abstract: `**Jarvis** is a gesture-based human-computer interaction system: two stereo cameras track your hand in 3D—MediaPipe hand landmarks triangulated to metric world coordinates—and pinch gestures drive the mouse cursor, fire keyboard actions, and point/raycast at the screen. Control the computer with your hand in the air.
 
-The stack uses MediaPipe Hands with monocular 3D lifting for lightweight inference, transformers for temporal stability, and OpenXR/WebXR for cross-platform AR. Voice is handled via OpenAI Whisper and local ASR, with a plugin framework for triggering scripts and external devices.
+The architecture is **event-driven** (asyncio pub/sub on the main thread): per-camera hand-pose modules feed a stereo-fusion module, a gesture FSM, and an action dispatcher, with a live visualizer overlaying 2D keypoints and a matplotlib 3D hand skeleton. A file/video replay path lets the whole pipeline run with no rig attached, plus stereo undistortion and a pointing gesture.
 
-The goal is a real-time assistant that reacts to how you move and what you say, not just what you tap—open-sourced on GitHub as the base gesture set and UI stabilize.`,
+Packaged, public, and documented—MIT-licensed on [GitHub](https://github.com/paarth-r/jarvis) (\`pip install -e .\` + a \`jarvis\` console command), 60 tests passing. A sibling to Hyperform: same stereo rig and MediaPipe patterns, hands instead of full body.`,
   },
   {
     id: 'hyperform',
@@ -57,15 +57,48 @@ The goal is a real-time assistant that reacts to how you move and what you say, 
     featured: true,
     image: '/images/hyperform.png',
     updates: [
-      { date: '2025-02-01', text: 'Shipped new form cues and improved pose stability on mobile.' },
-      { date: '2025-01-15', text: 'Added support for multiple camera angles—feedback now adapts to device orientation.' },
-      { date: '2024-12-10', text: 'Finished product and launched a website at [hyperformfit.com](https://hyperformfit.com). Early focus on lower-body movements.' },
+      { date: '2026-06-14', text: 'Designing a new full-body capture rig—portrait-mounted cameras, ~20–30 cm baseline, M12 lens—for clean tracking out to 2 m.' },
+      { date: '2026-06-10', text: 'Picked **push-up** as the second exercise (over golf): it maps cleanly onto the COCO-17 pipeline as a horizontal squat. Traced the squat correction pipeline end-to-end as the template.' },
+      { date: '2026-06-09', text: 'Went from stereo to a **3-camera rig**—all three calibrated (ChArUco intrinsics, ~0.3 px RMS), with an N-view confidence-weighted triangulation pipeline pushed.' },
+      { date: '2026-05-31', text: 'Built the **correction engine** (~3,000 lines, 291 tests): 9 body metrics, a phase state machine, 5 rule types (angle/symmetry/trajectory/tempo/DTW), streaming over WebSocket. Exercises are markdown specs—add one with no code.' },
     ],
-    abstract: `**Hyperform** uses computer vision to make fitness more accessible: real-time pose estimation and form feedback for at-home workouts.
+    abstract: `**Hyperform** uses computer vision to make fitness more accessible: real-time 3D pose estimation and form feedback for at-home and in-gym workouts.
 
-We apply state-of-the-art pose models to analyze movement and give users actionable cues—so they can train safely and effectively without a coach in the room. The product combines a React front end with cloud-backed CV pipelines (AWS) and Firebase for auth and data.
+A synchronized multi-camera rig (now three calibrated cameras) reconstructs a 17-keypoint 3D skeleton in metric space at up to 120 fps via N-view triangulation. On top sits a **correction engine** that evaluates body metrics against per-exercise rules—angle, symmetry, trajectory, tempo, and DTW—and streams live form cues to a React Native (Expo) kiosk over WebSocket. Exercises are markdown specs with YAML frontmatter, so adding a movement means writing a file, not code.
 
-Ongoing work focuses on robustness across body types and environments, and on expanding the movement library. Live at [hyperformfit.com](https://hyperformfit.com).`,
+Solo-built across vision, hardware, and app. Pre-revenue and raising a first round; live at [hyperformfit.com](https://hyperformfit.com).`,
+  },
+  {
+    id: 'dum-e',
+    title: 'dum-e',
+    description:
+      'A jitter-free, Xbox-driven inverse-kinematics controller for the LeRobot SO-101 arm—plus a PyBullet sim rig and a diffusion-policy imitation-learning scaffold.',
+    href: 'https://github.com/paarth-r/Dum-E',
+    year: '2026',
+    tech: ['Python', 'Robotics', 'IK', 'PyBullet', 'placo'],
+    featured: true,
+    githubRepo: 'paarth-r/Dum-E',
+    abstract: `**dum-e** is a library and CLI for controlling a [LeRobot SO-101](https://github.com/huggingface/lerobot) arm—a 5-DOF, ~$100 hobby arm—with an Xbox controller. Named after the clumsy robot arm from the Iron Man workshop.
+
+The interesting problem wasn't the IK, it was making teleop *feel good*. Reading noisy servo encoders straight back into the control loop makes the arm buzz and chase a jittering target. The fix (the same one Stanford's TidyBot++ uses): never track measured feedback—maintain an internal **commanded reference** \`q_ref\` and integrate all motion from that, using damped-least-squares IK plus a jerk cap. The result is teleop that feels connected instead of twitchy.
+
+On top sits an interactive **PyBullet sim** (Xbox + keyboard, a grabbable box, OnShape-style orbit/pan navigation) with a synthetic depth camera for hardware-free testing, plus the scaffolding for a TidyBot++-style **diffusion-policy imitation-learning** pipeline. Live on real hardware and pushed to [GitHub](https://github.com/paarth-r/Dum-E).`,
+  },
+  {
+    id: 'campus',
+    title: 'Campus',
+    description:
+      'A single-file browser climbing game: webcam-pose or mouse control, a Verlet-ragdoll climber with bending limbs, stamina, and full persistent progression.',
+    href: 'https://paarth-r.github.io/Campus',
+    year: '2026',
+    tech: ['JavaScript', 'Canvas', 'MediaPipe', 'Game Physics'],
+    featured: false,
+    githubRepo: 'paarth-r/Campus',
+    abstract: `**Campus** is a browser climbing game built into a single \`index.html\`—no build step, [live on GitHub Pages](https://paarth-r.github.io/Campus). Reach for glowing holds and climb a scrolling wall as a physically-credible **Verlet ragdoll** with two-bone bending arms and legs; falls are caught by the rope at your last clipped quickdraw.
+
+Two control modes: **Campus** uses webcam pose (hands only, feet dangle—a hand grabs when its on-screen marker overlaps a hold), and **Klifur** is a pure mouse puzzle where you drag each limb onto holds. The mechanic is tuned for real climbing feel: input-gated leg drive, precision overlap-only grabs, a BotW-style stamina wheel that drains only while you're actively moving to a new hold.
+
+On top of the physics sits a full progression loop—a persistent profile with four skills (Grip, Endurance, Fingers, Reach) that literally feed the mechanic, V-graded routes with a soft skill gate, an economy, and a level editor with a draggable reference climber. Grades cap at V17, with a "really bro?" easter egg above V10.`,
   },
   {
     id: 'flowstate',

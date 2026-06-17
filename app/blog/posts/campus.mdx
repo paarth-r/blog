@@ -1,0 +1,115 @@
+---
+title: "Campus: Turning a Tech Demo Into a Real Climbing Game"
+publishedAt: "2026-06-15"
+summary: "I had a webcam-pose climbing toy that was fun for thirty seconds. This is the build log of the overhaul that gave it bending limbs, real climbing feel, a stamina wheel, and a full progression loop — all in a single index.html."
+---
+
+[Campus](https://paarth-r.github.io/Campus) started as a tech demo: point a webcam at
+yourself, reach for glowing holds, and a ragdoll climbs a scrolling wall. It was fun
+for about thirty seconds. The physics were floppy in the wrong way, the climber
+stretched its arms to grab holds it had no business reaching, and there was nothing to
+*do*. This is the log of the session that turned it into something I'd actually call a
+game — still a single `index.html`, no build step, [live on GitHub
+Pages](https://paarth-r.github.io/Campus).
+
+## The shape of it
+
+The climber is a **Verlet ragdoll**. You play in one of two modes: **Campus** uses
+webcam pose (hands only, feet dangle — a hand grabs when its on-screen marker overlaps
+a hold), and **Klifur** is a pure mouse puzzle where you drag each limb onto holds.
+Falls are caught by the rope at your last clipped quickdraw. Everything below is about
+making that core mechanic feel like climbing instead of like dragging a corpse up a
+wall.
+
+## Bending limbs
+
+The first version drew each arm and leg as a single stretched segment. That's why the
+climber could "reach" a hold across the screen — the arm just got longer. The fix was
+to make limbs **two-bone**: shoulder → elbow → hand, pelvis → knee → foot. Now elbows
+fold and knees bow, and crucially the maximum hand distance is the actual arm length.
+An out-of-reach hold simply *can't* be grabbed; the arm stays at full extension instead
+of snapping out to it.
+
+This also gave the Reach stat something physical to do — upgrading Reach literally
+lengthens the arms, which is how you unlock bigger moves.
+
+## Precision grab
+
+The old grab test used the raw cursor position, so you could "grab" a hold from a
+distance as long as the cursor was near it. The new rule is overlap-only: dropping a
+hand grabs from where the hand *actually* is (clamped to reach), and only if the hand's
+circle overlaps the hold's. No more telekinesis.
+
+## Leg drive that doesn't launch you
+
+Legs were the hardest thing to get right. The first attempt had the climber always
+auto-standing, which looked stiff and fought the ragdoll. I replaced it with something
+input-gated and directional:
+
+- **No input** → the ragdoll hangs loose, limp and gravity-sagged.
+- **While dragging** → planted feet push the pelvis *toward* the drag direction. You
+  use your legs to push the same way you use your arms to pull.
+
+The trick to keeping it stable was to push toward a target *below* the rigid
+leg-length limit — so the legs provide force without ever fighting the hard
+constraint. Push too hard against a hard constraint and the solver launches the
+climber off the wall. Push softly toward a slack target and it just... climbs.
+
+## Stamina
+
+A BotW-style green stamina ring sits by the active hand. The rule took two passes to
+get right: **stamina drains only while you're actively moving a hand to a new hold** —
+the effort of *moving*, not of hanging. Both hands on, both off, or a still one-handed
+hang all refresh it; only a committed reach drains it. Run it to zero mid-move and your
+grip blows. Grip and Endurance stats raise the pool.
+
+## Making it a game
+
+Physics alone is a toy. The progression loop is what makes it a game, and it's all
+localStorage-backed:
+
+- A **climber profile** that persists points, four skills (Grip · Endurance · Fingers ·
+  Reach), sends, and best times.
+- **Skills feed the mechanic**, not just a number: Reach lengthens arms, Grip/Endurance
+  grow the stamina pool, and **Fingers** gate small crimps — micro-holds slip until your
+  fingers are strong enough.
+- **V-grades with a soft gate.** Routes up to your skill+1 are unlocked; harder ones
+  show a lock and the grade you need. The built-in ladder is authored V0 → V5; custom
+  levels are auto-graded by a difficulty heuristic. Route geometry is generated against
+  a *fixed* reference reach, so leveling up never mutates the walls themselves.
+- An **economy** — first ascents pay points by grade, later PBs pay a little, and you
+  spend points in a Training screen to level skills and unlock harder routes.
+
+The grades cap at **V17** (real climbing's hardest grade). The auto-grader can propose
+V18 on an absurd custom wall, but it's capped with a "(you proposed V18 — capped)"
+note, and anything above V10 gets a 🤨 and a *"really bro?"* jab on the chip.
+
+## The restyle, and two bugs hiding in the CSS
+
+I threw out the old cream/sage theme for an **alpine field-guide / topographic** look:
+warm sandstone paper, lichen-sage, rust-clay accent, contour-line textures, and
+[Fraunces](https://fonts.google.com/specimen/Fraunces) paired with Hanken Grotesk.
+Earthy and distinctive, but calm enough to read over a live canvas.
+
+Rewriting the CSS surfaced two structural bugs that had nothing to do with the game
+logic:
+
+1. The **editor toolbar used `flex-wrap`**, so a long instructional tip wrapped it onto
+   multiple rows — and the side panels, pinned with a hardcoded `top`, slid underneath
+   it. Fix: a fixed-height, no-wrap toolbar row with the side panels pinned off
+   `calc(barHeight + gutter)`.
+2. The **HUD had no `.hud.hidden { display: none }` rule**, so the in-game back button
+   and hint leaked into the editor and draw screens.
+
+Neither was a physics bug. Both were the kind of thing that only shows up once you
+care about the thing looking finished.
+
+## What's next
+
+The climb is mechanically sound now but path-dependent — good technique actually
+matters, which is the point. Open threads: tuning the leg-push and stamina-drain feel,
+and some proportion polish on the climber. But it's a real game now.
+
+Campus is open source: [github.com/paarth-r/Campus](https://github.com/paarth-r/Campus),
+and you can play it right now at
+[paarth-r.github.io/Campus](https://paarth-r.github.io/Campus).
