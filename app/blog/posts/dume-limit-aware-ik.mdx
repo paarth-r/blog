@@ -1,0 +1,44 @@
+---
+title: 'The Arm Kept Locking Up, and the Fix Was a Leash, Not a Clamp'
+publishedAt: '2026-06-19'
+summary: 'A teleop lockout bug in dum-e turned into a lesson about where you clamp to joint limits. Plus a gripper remap that took the controller from two-handed to one squeeze.'
+---
+
+Since the [last dum-e post](/blog/dum-e), I've been driving the arm more and hitting the rough edges that only show up with real stick-time. Two of them were annoying enough to fix properly: the gripper needed both hands, and the arm would occasionally just... lock up.
+
+## The lockup
+
+Drive a Cartesian direction until a joint hits full range of motion, and the arm pins. Reverse the stick and — nothing, for a beat. Then it slowly unwinds before responding again. Fighting a servo that's ignoring you is a bad feeling for teleop.
+
+The cause was subtle. `_velocity_jog` integrates the desired Cartesian velocity into a pivot target every tick. The solved joints get clamped to their limits *after* IK — which sounds fine until you realize the target itself never gets told about the clamp. When a position joint saturates, the target keeps marching forward in software while the arm physically can't follow. Reverse the stick, and you're not moving the arm yet — you're just chipping away at however much the target overshot before it re-enters the reachable envelope.
+
+My first fix was the obvious one: snap the target back onto the achieved configuration every tick (`pivot_target = fk(q_send)`). That killed the lockup, but it also killed the arm's motion near singularities — the DLS solver relies on some slack between target and achieved state to stay well-conditioned, and a hard snap removes that slack entirely. Motion went glacial.
+
+The actual fix is a leash, not a clamp. After integrating the target each tick, clamp it to within 10mm of the achieved pivot (via forward kinematics on the current joint state), instead of forcing equality. Under normal motion the achieved pivot tracks the target closely enough that the leash never binds — no behavior change. When a joint saturates, the target can only lead reality by 10mm before the leash catches it, so reversing the stick unwinds almost instantly instead of taking dozens of ticks.
+
+Measured in sim: windup dropped from 125mm to 10mm, and reverse-to-5mm-error went from 52 ticks to 15.
+
+```python
+# leash the pivot target to the achieved configuration - bounded windup,
+# not zero windup, so the DLS solver keeps its slack near singularities
+achieved = fk(ref[:3])
+offset = pivot_target - achieved
+if norm(offset) > config.pivot_leash_m:
+    pivot_target = achieved + offset * (config.pivot_leash_m / norm(offset))
+```
+
+The general lesson: when you have a target that integrates open-loop and a solver that clamps closed-loop, the gap between them is where bugs like this live. Zero gap and you lose the solver's working room. Unbounded gap and you get lockups. A leash gets you both — bounded slack.
+
+## The gripper remap
+
+Separately, the gripper was two-handed: LT to open, RT to close, plus A/Y for snap-to-open/closed. Fine in isolation, annoying when you're also trying to drive translation with the left stick and the wrist with the D-pad — that's already both thumbs and a few fingers committed.
+
+New default mode: **squeeze**. RT position directly maps to jaw openness — released is fully open, fully depressed is fully closed, everything in between is proportional. One continuous motion, no separate open/close inputs, and it frees up A and Y (which did nothing more useful than what RT position now does natively). X toggles back to the old rate-control mode if I want it for fine work.
+
+I also added stick clicks (L3/R3) as a second way to nudge Z up/down, alongside the existing right-stick-Y axis. Small thing, but useful when I want a discrete "up a bit" instead of modulating an analog stick precisely.
+
+## Self-awareness readout
+
+While I was in the control loop anyway, I added a cheap diagnostic: every tick, compute the minimum joint-limit margin across the arm (in degrees) and a near-singular flag from the existing manipulability metric. Both surface in telemetry and the live status line. It's reporting only — the leash is what actually prevents the lockout — but it's been useful for knowing *why* the arm feels stiff in a particular pose before I even check the leash math.
+
+None of this required touching hardware — it's all verified against the PyBullet sim from the last post. That's the payoff of building the sim first: I can iterate on control-loop bugs like this at full speed, then confirm on the real arm once, instead of debugging jitter live with a $100 arm as the only test rig.

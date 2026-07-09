@@ -1,0 +1,35 @@
+---
+title: 'The Floor Is Flat. My Monocular Depth Reconstruction of It Is Not.'
+publishedAt: '2026-06-29'
+summary: 'Building a metric floor map for storePose from a single overhead camera turned into a debugging exercise in trusting the measurement over the intuition. The floor bows by up to 0.7m at range, and it is not a calibration bug.'
+---
+
+The next piece of storePose, the Mashgin store-analytics pipeline I've been building, is a proper occupancy heatmap — where in the store people actually stand, dwell-weighted, not just a count. That needs a floor: for every pixel a person's feet touch, a real metric (x, y) position on the store floor, from a single fixed camera with no checkerboard and no manual calibration target.
+
+Apple's [Depth Pro](https://github.com/apple/ml-depth-pro) is the obvious tool — monocular metric depth from a single frame, no calibration rig needed, and it recovers focal length as a byproduct. Run it once per camera, RANSAC a plane out of the resulting point cloud, and you have a floor. That was the plan.
+
+## The finding I didn't want to be true
+
+The floor bows. Not a little — up to about 0.7m of deviation from a flat plane over the range of the store, with a median residual around 0.32m. I checked this on two different camera views (a food counter and a general "counter overview" angle) and got essentially the same bow on both.
+
+My first assumption was that I had a focal length error somewhere — a wrong intrinsic would absolutely warp a reconstructed plane like this. I ran a focal length search to check. It's degenerate: there's no clear optimum that improves the bow. That ruled out the obvious calibration-bug explanation.
+
+Second assumption: something specific to one camera's mount angle or lens. Also ruled out — same bow, same rough magnitude, on both views, and they're at meaningfully different angles and distances from their respective floors.
+
+What's actually happening is a known limitation of monocular metric depth at oblique viewing angles: the depth estimates are locally consistent but not globally metric-accurate over a wide field of view at a shallow angle to the surface. The reconstruction is internally coherent — it's just not flat when the real thing is.
+
+This matters a lot for the heatmap specifically, because it's not a small error. A single-plane ankle-to-floor homography — the standard way to convert an image point to a real-world floor position — assumes the floor actually is a plane. With up to a meter of bow at range, that homography would place someone standing near the back of a store frame up to a meter away from where they actually are. That's not a rounding error, that's a different aisle.
+
+## Evaluating the alternative before committing to a workaround
+
+Before working around Depth Pro's floor bow, I evaluated whether a different monocular depth model would just... not have this problem. Depth Anything 3 (DA3) was the obvious candidate — it runs on Apple Silicon via MPS at a very usable 1.3 seconds per frame, and it ships Apache-2.0 licensed metric weights, which is a real practical advantage over Depth Pro's stricter terms.
+
+I ran the same floor-flatness check against it at a realistic field of view. The bow was essentially identical to Depth Pro's. It also doesn't expose usable single-image intrinsics the way Depth Pro does, and the output resolution is lower. So DA3 doesn't fix the actual problem, and it regresses two things I do rely on. Depth Pro stays.
+
+## Where this leaves the heatmap
+
+The real floor is flat. Only the monocular reconstruction of it bows. So the fix isn't a better depth model — the finding above suggests that's very unlikely to help — it's not trusting the reconstructed plane for the *exact-location* heatmap at all. The plan going forward is a manual four-point homography: click four known floor points once per fixed camera, solve the exact planar transform from that. It's less automatic than "run Depth Pro and get a floor for free," but it's exact for a genuinely flat floor and immune to the bow, since it never asks the depth model to be globally accurate over the whole frame — just internally consistent enough to place four points I've already told it are coplanar.
+
+Depth Pro isn't wasted work, though. It's still exactly right for what it's already doing well: recovering focal length from a single frame (which the four-point homography doesn't give you), giving a good near-plane result (the bow is worst at range, not close to camera), and it's already driving the live 3D point-cloud scene viewer I shipped this week, where "internally coherent but not globally flat" is a fine property to have — it looks like a store, markers land on the right people, and nothing there depends on the floor being an exact plane.
+
+The lesson I keep re-learning on this project: when a measurement disagrees with your model of reality, check the measurement twice before you trust your model. The floor really is flat. I just needed the actual residual numbers, on two separate cameras, before I'd believe the reconstruction wasn't.

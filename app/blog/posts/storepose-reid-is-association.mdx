@@ -1,0 +1,39 @@
+---
+title: 'Re-ID Swaps Are an Association Problem, Not an Embedding Problem'
+publishedAt: '2026-06-25'
+summary: 'A month into building a real-time store analytics pipeline for Mashgin, the identity-swap bugs kept pointing away from "get a better embedding model" and toward "fix the gating logic." Here is why, and the stationary-prop bug that made the case unavoidable.'
+---
+
+For the past month I've been building **storePose** — a real-time computer vision pipeline that answers one operational question for Mashgin: *how busy is the checkout line, right now?* It detects every person on a store camera, fits a 17-keypoint pose, tracks each one through occlusions with a stable identity, and derives a calibrated Low/Medium/High busy signal plus a measured comparison between Mashgin self-checkout and a staffed lane. Code's at [github.com/paarth-r/storePose](https://github.com/paarth-r/storePose), 572 tests passing as of this week.
+
+The hardest part of that pipeline, by a wide margin, has been keeping identities stable. Not detection — YOLOX + RTMPose off the shelf is genuinely good. Identity, across occlusions, re-entries, and a busy frame full of similar-looking people in similar clothes.
+
+## The instinct, and why it's wrong
+
+The instinct when someone's identity swaps mid-track is "the re-id embedding isn't discriminative enough — get a bigger model." I had that instinct. I benchmarked osnet_x1 (an 8.7MB ONNX export from an MSMT17-pretrained checkpoint) against the default osnet_x025 to test it.
+
+It was a wash. No measurable improvement.
+
+That result forced a rethink, and a quick literature sweep confirmed why: appearance re-id models are trained on street-level pedestrian datasets, and they degrade hard on overhead store-camera footage. Market-1501 rank-1 accuracy around 85% on the data it was trained for; the same architecture drops to roughly 42% on aerial/overhead framing. That's not a model-capacity problem — it's a domain-gap problem. A bigger embedding model trained on the same kind of data won't close that gap. The tracking literature (ByteTrack, OC-SORT, GHOST, StrongSORT) converges on the same answer for exactly this reason: under occlusion, geometry and motion are the strong signal and appearance is, at best, a weak tiebreaker.
+
+So the fix isn't a better embedding. It's treating appearance as gated evidence instead of a primary signal — admitted only when geometry already agrees.
+
+## The gating fix
+
+The tracker now defaults to a BoT-SORT-style fusion: appearance cost is only allowed to influence a match when IoU already exceeds 0.5 *and* cosine similarity exceeds 0.75. When both hold, the final cost is `min(iou_cost, 0.5 * appearance_cost)` — appearance can sharpen a geometrically-plausible match, never override a geometrically-implausible one. Re-id weight dropped from 0.4 to 0.2 in the blended fallback mode. Gallery re-attachment (matching a person who fully exited and came back) got the same treatment — it's now location-gated instead of appearance-only, so a returning person has to plausibly be *where* they left, not just *look like* who they were.
+
+## The bug that made the case undeniable
+
+While chasing this down I hit a specific failure that's a good illustration of what "geometry-first" is actually protecting against. A lollipop-stand prop near the checkout kept stealing the identity of whoever walked past it.
+
+The mechanism, once I traced it: a stationary object that happens to detect as a person is a **penalty-free universal acceptor**. It sits at maximum IoU against anyone who crosses its exact spot. Its motion term is undefined (it doesn't move), so there's no motion penalty either direction. And appearance can't save you here — OSNet, already degraded by the domain gap, can't reliably tell a box-shaped prop-blob from a person-blob from overhead. So the prop's track grabs whoever walks through, rides along with them for a few frames, contaminates its own gallery with their appearance, and repeats with the next person who crosses the same spot.
+
+I tried a time-based suppression heuristic first (if a track hasn't moved in N seconds, discount it). It leaked — there's an unavoidable warmup window before the heuristic kicks in, and that's exactly when the steal happens. The robust fix was to stop treating it as a tracking problem at all: mask known static props at the *detection* stage with an `--ignore-zone`, drawn once per fixed camera. If the prop never becomes a detection, it can never become a track, and the whole class of bug disappears rather than getting patched around.
+
+## The other silent bug
+
+One more thing worth writing down because it cost real time: `--det-conf`, the person-detection confidence threshold, had been a complete no-op for months. The YOLOX ONNX export has NMS baked in, and the postprocessing code was filtering at a hardcoded 0.3 regardless of what the flag said. I only caught it because a detection change I expected to matter measurably didn't move any metric at all — which is exactly the kind of nothing-happened signal worth chasing instead of shrugging off.
+
+I re-trialed higher thresholds (0.6, 0.65, 0.7) once the flag was actually wired up and reverted all of them — recall on partially-occluded checkout people mattered more than the noise a lower threshold let through, and the props I cared about filtering don't separate cleanly by detection score anyway (that's the ignore-zone's job, not confidence's).
+
+The throughline for the month: every time the fix was "get a better model," I was wrong. Every time it was "fix what geometry is allowed to override," I was right. I'm treating that as a general rule for this pipeline now, not just a one-off lesson.

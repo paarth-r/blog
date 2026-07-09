@@ -1,0 +1,33 @@
+---
+title: "claudemaxxing: A Terminal Dashboard for Not Blowing Through My Claude Code Limit"
+publishedAt: '2026-07-09'
+summary: "I kept getting rate-limited by Claude Code's 5-hour usage window with no warning. Built a live TUI that tracks it properly — real pace math instead of a vibe, plus fake philosopher quotes with LinkedIn job titles, because why not."
+---
+
+I use Claude Code constantly — it's most of how the other posts on this blog about dum-e and storePose got built as fast as they did. The one thing that kept catching me off guard was the 5-hour rolling usage limit resetting or running out with zero warning. I'd be mid-task and suddenly hit a wall, with no sense of whether I'd been pacing myself well or blowing through it in the first hour.
+
+So I had Claude build a tool to watch itself. [claudemaxxing](https://github.com/paarth-r/claudemaxxing) is a terminal dashboard that live-tracks the 5-hour window and tells you whether you should use more, use less, or you're right on pace to use the whole thing with nothing wasted.
+
+## There's no API for this
+
+The first real finding was that Anthropic doesn't expose a "check my usage" endpoint. Claude Code computes the rate-limit percentage internally and only ever surfaces it through the **statusLine** feature — a script you register that gets the current numbers piped to it on every render. So the tool's data source is a small hook script that captures that stream into a local file every time any Claude Code session renders, instead of hitting any API directly.
+
+That sounds simple until you remember I usually have eight or nine Claude Code sessions open across different projects. Each one only knows what its *own* last API call told it — which meant early versions had every open terminal reporting a slightly different, laggy number. The fix was a merge rule: every session reconciles toward whichever reading is more advanced (higher usage%, or a genuinely newer window), so all of them converge on the same true number within a render cycle instead of eight different stale guesses.
+
+## The pace math got a real rewrite
+
+The first version of "pace" just compared usage% to elapsed% of the window — crude, but a start. It didn't actually answer the question I cared about, which was closer to *how can I keep using this thing without running dry early.*
+
+The current version computes two real rates: your actual recent %/min consumption (a trailing 15-minute window, falling back to the whole-window average early on), and the ideal %/min that would land you at exactly 100% used right as the window resets — recalculated fresh every 60 seconds from wherever you actually are, not a static number. Compare the two and you get a genuinely useful answer: `ABOVE` means ease off, you'll run out early; `BELOW` means you have room, use more, the unused allowance disappears at reset regardless; `AT` means you're spending it exactly as fast as time is passing.
+
+Building this the normal way surfaced two real bugs I wouldn't have caught otherwise. One: the file that captures each session's reading wasn't written atomically, so two sessions writing at the same literal moment could interleave and corrupt it — silent, occasional, and exactly the kind of bug that only shows up under real concurrent load. Two, and the more interesting one: the merge logic that reconciles across sessions would accept *any* window change as "a newer window started," including a lagging session reporting an *older* window after some other session had already moved forward. That regressed the shared state backward and made the tool think a window had ended hours before it actually had — caught because the resulting data literally showed a window archived as "complete" before its own end time. Both are now fixed and covered by tests that reproduce the exact failure before checking the fix.
+
+## The commit-graph heatmap
+
+The part I like most: a horizontal row of cubes, one per completed 5-hour window, shaded on a continuous grey-to-green gradient by how hard I used that window — grey for untouched, bright green for maxed out. It's a direct lift of GitHub's contribution graph aesthetic, persisted permanently to a local log so it survives restarts and keeps building over weeks. Once I've used this for a month it should be a genuinely interesting picture of my own usage patterns, not just the current window.
+
+## And the part that's just for fun
+
+Every quote in the dashboard's footer is attributed to a real philosopher — Marcus Aurelius, Nietzsche, Sun Tzu — each with a fake, anachronistic prestigious tech job title, because a straight quote line felt too dry for a tool this silly. Kafka is "Founding Engineer @ Apache Kafka." Kant is "Head of Multimodal Research @ Anthropic." There are ninety of these across three pools — one that nudges you to use more, one that mocks you for burning through your limit, one about the disciplined middle path — and which pool fires depends on which pace state you're actually in, so the joke is at least contextually correct.
+
+Not a serious project. But it's exactly the kind of tool that's genuinely useful to have running in a side terminal while I work, and it was a good excuse to think carefully about concurrency bugs, rate math, and terminal rendering in one sitting. Code's public at [github.com/paarth-r/claudemaxxing](https://github.com/paarth-r/claudemaxxing) if you also live in Claude Code all day and want to know if you're about to run dry.

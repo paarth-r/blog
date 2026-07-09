@@ -85,6 +85,49 @@ The interesting problem wasn't the IK, it was making teleop *feel good*. Reading
 On top sits an interactive **PyBullet sim** (Xbox + keyboard, a grabbable box, OnShape-style orbit/pan navigation) with a synthetic depth camera for hardware-free testing, plus the scaffolding for a TidyBot++-style **diffusion-policy imitation-learning** pipeline. Live on real hardware and pushed to [GitHub](https://github.com/paarth-r/Dum-E).`,
   },
   {
+    id: 'storepose',
+    title: 'storePose',
+    description:
+      'Real-time store analytics for Mashgin: multi-person pose tracking, queue state, and a calibrated busy signal from ordinary store-camera video.',
+    href: 'https://github.com/paarth-r/storePose',
+    year: '2026',
+    tech: ['Python', 'Computer Vision', 'RTMPose', 'YOLOX', 'Tracking', 'ONNX Runtime'],
+    featured: true,
+    githubRepo: 'paarth-r/storePose',
+    updates: [
+      { date: '2026-07-09', text: '**Live 3D scene viewer** shipped to main: a point-cloud reconstruction of the store next to the video feed, with live floor markers.' },
+      { date: '2026-06-29', text: 'Found that monocular depth reconstruction of the store floor **bows up to 0.7m at range** — not a calibration bug. Moving to a manual four-point homography for the exact-location heatmap.' },
+      { date: '2026-06-25', text: 'Shipped a **BoT-SORT-style gated re-id fusion** — appearance only counts when geometry already agrees — plus an `--ignore-zone` to stop static props from stealing identities.' },
+      { date: '2026-05-30', text: 'First commit: realtime multi-person pose (YOLOX + RTMPose) pipeline.' },
+    ],
+    abstract: `**storePose** turns ordinary store-camera video into a live answer to one operational question — how busy is the checkout line, right now? — and a measured comparison between a Mashgin self-checkout and a staffed lane.
+
+It detects every person, fits a 17-keypoint pose, tracks each one with a stable identity through occlusions (SORT-style Kalman + IoU, One-Euro smoothing, gated appearance re-id that never overrides geometry), and runs a per-person state machine that splits a visit into waiting and being served. From that it derives a calibrated Low/Medium/High busy signal, per-checkout service times, and a live browser dashboard — on a laptop, in realtime.
+
+Built and shipped during a research placement at Mashgin. 572 tests passing, MIT-licensed, [on GitHub](https://github.com/paarth-r/storePose).`,
+  },
+  {
+    id: 'claudemaxxing',
+    title: 'claudemaxxing',
+    description:
+      "A terminal dashboard for Claude Code's rolling 5-hour usage limit — real pace math instead of a static comparison, a commit-graph-style usage heatmap, and fake philosopher quotes with LinkedIn job titles.",
+    href: 'https://github.com/paarth-r/claudemaxxing',
+    year: '2026',
+    tech: ['Python', 'rich', 'Terminal UI'],
+    featured: true,
+    githubRepo: 'paarth-r/claudemaxxing',
+    updates: [
+      { date: '2026-07-09', text: 'Redesigned pace as a real rate comparison — recent %/min vs. the ideal %/min to land at exactly 100% at reset — instead of a static elapsed-vs-used snapshot.' },
+      { date: '2026-07-06', text: 'Added a **GitHub-commit-graph-style heatmap**, permanent across restarts, plus live tokens/min and active-session count.' },
+      { date: '2026-07-06', text: 'Shipped v1: statusLine-hook data capture, multi-session convergence, live TUI with progress bars and a pace badge.' },
+    ],
+    abstract: `**claudemaxxing** is a terminal dashboard that watches Claude Code's rolling 5-hour usage limit and tells you whether to use more, use less, or you're right on pace to use the whole window with nothing left over.
+
+There's no public API for this — Claude Code only surfaces the rate-limit percentage through its statusLine hook, so the tool captures that stream into a shared local file across every open session, reconciling toward the most-advanced reading so multiple terminals never disagree. Pace compares a real trailing %/min consumption rate against the ideal rate needed to land at exactly 100% at reset, recalculated live every 60 seconds.
+
+Also has a GitHub-style usage heatmap that persists permanently across restarts, and ninety philosopher quotes — one pool per pace state — each with a fake anachronistic tech job title. [On GitHub](https://github.com/paarth-r/claudemaxxing).`,
+  },
+  {
     id: 'campus',
     title: 'Campus',
     description:

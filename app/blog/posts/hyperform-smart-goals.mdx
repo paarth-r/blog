@@ -1,0 +1,39 @@
+---
+title: 'Adding a SMART Goals Walkthrough to Hyperform, Without Overclaiming What SMART Actually Is'
+publishedAt: '2026-07-07'
+summary: 'A six-screen onboarding addition to Hyperform meant deciding how honestly to represent a 1981 goal-setting mnemonic that was never actually validated by its own author.'
+---
+
+Hyperform's onboarding asks a lot of a new user before they've seen any value from the app: activity level, goal type, specifics, a schedule. The one thing it wasn't doing was explaining *why* — why we ask for a specific number, why we push back on an unreachable timeframe, why a deadline matters. Users were hitting the goal-reachability check (the thing that tells you honestly if your target fits the time you've given it) with no context for why the app cares.
+
+The fix was a six-screen SMART goals walkthrough, inserted right after "what's the mission?" and before the goal specifics. One intro screen, then one screen per letter — Specific, Measurable, Achievable, Relevant, Time-bound.
+
+## The framing decision
+
+The obvious way to write this is "SMART is a proven goal-setting framework, here's how it works." I didn't want to write that, because it isn't quite true, and Hyperform's whole pitch is honest feedback over flattering feedback — the same instinct that drives the reachability check itself shouldn't stop at the copy explaining it.
+
+SMART, as a specific five-letter mnemonic, comes from a 1981 paper by George Doran and was never empirically validated by Doran himself — it's a practical checklist, not a studied intervention. What *does* have real research behind it is the broader body of work it's built on: Locke and Latham's goal-setting theory, which does show that specific, appropriately challenging goals with feedback consistently outperform vague ones. That's a real, well-replicated finding. SMART is one popular packaging of it, not the research itself.
+
+So the intro screen says exactly that: goal-setting research backs specific, challenging, feedback-driven goals; SMART is the framework we're using to apply it. Not "SMART is proven." I'd rather lose a little punchiness in the copy than make a claim I'd have to walk back if a user pushed on it.
+
+## Tying every letter back to one thread
+
+Each letter's screen is framed around the same throughline — reachability — because that's the concrete thing the screens *right after* this walkthrough actually deliver on: Goal Details' validation and the app's recommended-timeframe suggestion. Explaining SMART in the abstract and then handing the user an unrelated goal-setting UI would waste the explanation. So "Achievable," for instance, isn't defined generically — it's defined as "your goal is physically possible in the time you've given it," and the very next screens are the ones that check exactly that.
+
+```
+S — "A specific goal names exactly what changes... that's what makes it reachable."
+M — "If you can't measure it, you can't tell if you're getting there."
+A — "We check every goal against real research on safe, sustainable rates of change."
+R — "A goal you're not attached to isn't one you'll reach."
+T — "A timeframe... lets us tell you, honestly, whether what you're asking for fits."
+```
+
+Every line points at a feature the user is about to use, not just a definition they're about to forget.
+
+## The implementation was the boring part, on purpose
+
+Six screens invites six near-duplicate components if you're not careful. Instead it's one `ScreenSmartLetter` component parameterized by a content array — letter, word, one-line definition, the reachability-framed body text, and a heading. Adding or editing a screen is a data change, not a new component.
+
+The trickier part was step numbering. The walkthrough inserts between the existing "what's the mission?" step and the existing goal-specifics step, which meant renumbering everything downstream and re-targeting the existing conditional branch (some goal types skip a sub-question; that skip logic previously fired directly off the mission step and now has to fire off the *last* SMART screen instead). No data model changes, no Firestore changes — purely informational, purely navigation plumbing. I'd rather a UI addition like this be entirely mechanical to verify than clever.
+
+Six extra screens is a real tax on time-to-value for a new user, and I don't take that lightly. But the reachability check downstream only means something if the user understands why it's there before it tells them their goal isn't achievable in the timeframe they picked. Better to spend thirty seconds explaining that up front than to have it read as the app being arbitrarily difficult the first time it happens.

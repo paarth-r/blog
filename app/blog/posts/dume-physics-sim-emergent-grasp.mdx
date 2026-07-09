@@ -1,0 +1,42 @@
+---
+title: 'Ripping Out the Magnet: Making Grasping Emergent Instead of Scripted'
+publishedAt: '2026-07-02'
+summary: 'The dum-e sim could "grasp" a box from 7cm away with no jaws involved — a fixed constraint standing in for physics. Replacing it with a real physics-backed arm made grasp something that emerges from friction and contact, not something the sim declares.'
+---
+
+The `dume sim` PyBullet harness has been useful for iterating on the control loop without touching hardware — I leaned on it hard for the [leash fix](/blog/dume-limit-aware-ik) two weeks ago. But it had an honesty problem I'd been ignoring: the arm in sim wasn't actually a physical body. It was **kinematic** — teleported to the commanded joint positions every tick via `resetJointState`. It instantly adopts whatever you command. `read_joints` always agrees with `write_joints`. If a real jaw stalled against a box, my sim arm would just phase through it and keep going.
+
+And "grasping" wasn't grasping. It was a fixed constraint that fired whenever the gripper origin got within 7cm of the box's center — a sphere much bigger than the 5cm box itself. The box would snap onto the gripper from a visible distance, no jaws closing, no friction, no contact model at all. It looked fine in a demo. It was lying to me about what the control stack could actually do.
+
+That gap matters more the further I get toward the actual goal here, which is imitation learning for grasping. If the sim can "succeed" at a grasp the real arm physically couldn't do, every episode I record in sim to bootstrap a policy is training on a lie.
+
+## Making the surrogate honest
+
+The fix was giving the control stack a genuinely physics-backed arm to drive, not a display mirror of one. `dum-e`'s architecture already had the right seam for this — `DumeArm` accepts any injected `ArmIO` implementation, and hardware already goes through that same interface. I added `PyBulletArm`, a new `ArmIO` that talks to a real physics body instead of a serial port:
+
+- `write_joints(q)` sets **position-control motor targets** for the five arm joints at a stiff tracking force, and the gripper joint at a deliberately **bounded** force — enough to hold an object, not enough to make the box explode out of the jaws. Then it advances the physics simulation by one control tick (about 5 substeps at 240Hz). Same shape as hardware: send a command, time passes, the world responds.
+- `read_joints()` reads back the **actual** simulated joint positions — including a jaw stalled at a wider angle than commanded because it's resting against an object. That's the whole point: the feedback path is now real instead of assumed.
+
+The controller — IK, the `q_ref` smoothing, the leash, posture-aware solving, gripper logic — runs completely unchanged against this new backend. That was the test of whether the seam was actually clean: zero changes to the control code, only a new `ArmIO` underneath it.
+
+```python
+def write_joints(self, q):
+    # bounded force on the gripper is the whole trick - stiff enough to hold,
+    # not stiff enough to override contact physics
+    p.setJointMotorControl2(self.gripper_joint, p.POSITION_CONTROL,
+                             targetPosition=q.gripper, force=self.params.gripper_motor_force)
+    for _ in range(self.substeps_per_tick):
+        p.stepSimulation()
+```
+
+## Grasp as an emergent property
+
+With that in place, grasping isn't declared anywhere in code. It's a consequence of jaw friction, box friction, and bounded motor force acting on real contact points. Close the jaws on the box, friction at the contact holds it against gravity as the arm moves, open the jaws and it drops. If the approach angle is bad or the grip force is too low for the object's weight, it slips — which is exactly the failure mode a real grasp attempt would have, and exactly the kind of failure a real system needs to be trained to avoid.
+
+I centralized every physics knob that goes into this — motor forces, jaw and box friction coefficients, solver iterations, timestep — into a single `GraspParams` dataclass. Getting from "real-ish, occasional slip is fine" to genuinely reliable pick-and-place is explicitly out of scope for this pass, but I wanted that next phase to be pure tuning against `GraspParams`, not a re-architecture. That's a lesson I keep applying across this project: separate "does the right mechanism exist" from "is the mechanism tuned well," and don't let the second one block the first.
+
+## What this unlocks
+
+The near-term payoff is boring but important: sim episodes recorded from here on are physically honest. When I get to actually training the diffusion-policy scaffolding that's already sitting in the repo, the demonstrations will reflect real contact dynamics instead of a magnet's idea of what a grasp looks like.
+
+The current state is still explicitly "real-ish, not tuned." Occasional slip and tip-over are acceptable for now — the goal of this pass was making the physics real, not making it reliable. Reliable pick-and-place is its own phase, and now it's a tuning problem against a small, well-named set of knobs instead of a rewrite.
