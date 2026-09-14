@@ -1,0 +1,59 @@
+---
+title: "Odin: Rebuilding a Notch Chat Around Wire Formats Instead of Vendors"
+publishedAt: '2026-08-03'
+summary: "My MacBook-notch assistant had an AI chat hardwired to one API. I rewrote it around three wire formats so any provider works, then spent most of the day on AppKit bugs: a panel that was never resized, a popover that killed the notch, and a blur that was actually a scroll gesture."
+---
+
+[Odin](https://github.com/paarth-r/odin) is my fork of boring.notch — a macOS utility that turns the MacBook notch into a dropdown for media, calendar, a file shelf, and, the part I actually use, an AI chat panel. It's a tool for myself: I wanted an always-available surface onto a language model that isn't a browser tab.
+
+The chat was originally wired to a single hosted API. One day of work turned it into something general, and most of that day wasn't about the AI at all.
+
+## Three wire formats, not three companies
+
+The design call that made the feature general: model wire formats, not vendors. There are really only three shapes of chat API worth supporting.
+
+| Format | Shape | Auth |
+|---|---|---|
+| Anthropic Messages | `POST /messages` | `x-api-key` + version header |
+| OpenAI Chat Completions | `POST /chat/completions` | `Bearer` token |
+| Replicate Predictions | `POST /predictions` then poll | `Token` |
+
+Almost everything speaks one of those. So the provider dropdown ships Claude (the default, on Opus), OpenAI, Replicate, OpenRouter, and a local Ollama, plus an "Enter your own URL" option with a base URL, a format picker, and a model name. That last one is the point: LM Studio, vLLM, Together, Groq, or an internal gateway all work without a code change, because each is just one of the three formats at a different address.
+
+Keys and model names are stored per provider so switching doesn't lose your config, and the old single-provider key migrates on first launch.
+
+## The real UI bug was the window, not the view
+
+The chat had felt cramped and un-rounded since I first added it, and I'd assumed it was a SwiftUI layout problem. It wasn't. A 700 by 800 point chat size was already wired into the view model and the content view, but the underlying `NSPanel` was created at the open-notch size (640 by 190) and only ever had its *origin* set. It was never resized. The view's 700 point width was being clipped by a 640 point window, and the rounded corners that were already implemented had no room to render.
+
+The panel now follows the view model's notch size, anchored top-center, with two guards. A floor at the closed size, because closing shrinks the size and without a floor the hover-to-open target would shrink with it and the notch would become unopenable. And a clamp to the screen, because the hardcoded 800 point height overflowed short displays.
+
+Everything else in the pass was AppKit being AppKit:
+
+- **Settings killed the notch.** The gear opened a SwiftUI popover, which creates its own window. The notch is a non-activating panel that only takes key status while a flag is set, so the popover stole focus and the notch collapsed. Settings now render inline in the same window.
+- **Concave versus convex corners.** The other tabs use a custom notch shape whose top corners flare outward into the menu bar. Chat used a plain rounded rectangle, convex on all four. My note to myself was "chat curves inwards instead of outwards," which took a minute to decode.
+- **Jitter on open.** The window snapped to its new frame instantly while SwiftUI ran a bouncy spring, so the overshoot was clipped at the window edge.
+
+## Two bugs worth remembering
+
+**The blur was not a rendering artifact.** The transcript would go blurry and stay blurry. I removed three `.drawingGroup()` calls chasing it. Wrong diagnosis, though correctly left off, since rasterizing a four-point shape buys nothing and blurs on resize. The actual cause: the notch's swipe-up-to-close gesture fires on *any* scroll over an open notch and drives an explicit blur radius from gesture progress. Scrolling the transcript is indistinguishable from a close-swipe, and momentum scrolls don't always deliver an ended phase, so the blur stuck on. Chat now bails out of the up-gesture entirely, and the reset also covers cancelled and empty phases. My instinct partway through was "just get rid of gestures entirely for now," which was right before the diagnosis was.
+
+**The multi-display click bug.** Enabling keyboard focus did `NSApp.windows.first(where: { $0 is BoringNotchWindow })`. With "show on all displays" there is one panel per screen, so clicking the chat on the external monitor enabled key status on the built-in display's panel. The fix is a window accessor that reports the window the view actually lives in, which is the answer to a whole class of "works on my laptop, breaks docked" bugs.
+
+## Slash commands, some of them gated
+
+Typing `/` in the composer brings up a suggestion list. `/help`, `/clear`, `/model`, and `/provider` are pure client-side state and work everywhere. `/effort`, `/thinking`, and `/usage` are genuinely Anthropic-shaped, so they're gated: they still appear in the list, marked as Anthropic-only, and refuse with a message naming the current provider rather than vanishing. Discoverable, not invisible.
+
+Two API constraints are enforced client-side instead of letting the server return a 400: extended thinking uses the adaptive mode, since a fixed token budget is rejected on current models, and disabling thinking is only legal at high effort or below.
+
+Supporting work that took longer than it sounds: a markdown renderer (tables, fenced code with a language tag and copy button, lists, quotes, rules, inline styles) verified against a real model response rather than assumed; a system prompt telling the model what's renderable and to keep tables to three columns for a narrow panel; a multi-line composer where Enter sends and Shift+Enter breaks; command output rendered as a full-width note, visibly the app talking rather than the model, and excluded from model context.
+
+One near-miss there. Adding a `kind` field to the message type would have thrown on decode for every persisted message and silently wiped chat history on launch. The decoder was made tolerant of the missing field before the field was added. Migrations for local data are still migrations.
+
+## The icon I gave up on
+
+Source art was a watermarked stock image, so I switched to an eye — Odin's one eye, no licensing question — and built the full macOS icon set with supersampling and a hard alpha threshold to avoid a soft upscale from a small source. It never rendered right on macOS 26. Tahoe composes and masks icons itself, so a legacy `.icns` gets dropped onto a default grey plate. Apple's own Notes app ships an `.icns` with only two sizes, meaning the real icon is an Icon Composer bundle whose schema I couldn't find documented anywhere. I stopped: fix the app, not the logo. Odin has no proper Tahoe-native icon and probably won't for a while.
+
+## What it is now
+
+A chat that drops out of the notch, talks to whichever provider I point it at, renders markdown properly, and doesn't blur, collapse, or click the wrong monitor. Chat history stays local. Code's at [github.com/paarth-r/odin](https://github.com/paarth-r/odin), GPL-3.0 like the project it forked.
