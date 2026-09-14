@@ -1,0 +1,55 @@
+---
+title: "dum-e: Making Teleop Fast, Recording Macros by Hand, and Teaching the Arm to Feel"
+publishedAt: '2026-09-14'
+summary: "A hardware session that made the SO-101 arm 2.5x faster (the speed cap turned out to be my own anti-lockout leash), hand-guided macros on the digit keys, four bugs diagnosed from saved data instead of code, and a first slice of force sensing built while the arm was away."
+---
+
+Two chunks of work on [dum-e](https://github.com/paarth-r/Dum-E) since the last post. The first was a day on real hardware in August, seven commits, every one validated on the arm the same afternoon. The second was the opposite: the arm was away for a month, so I built the thing that needed the least hardware to design and the most hardware to verify — force sensing — and it's shipped but unproven. I'll be honest about which is which.
+
+## The speed cap was my own leash
+
+The arm felt slow. The obvious fix was bumping defaults, so I did: Cartesian speed from 0.12 to 0.22 m/s, wrist from 80 to 120 deg/s, a faster gripper rate, a lighter smoothing filter, a higher jerk cap. Then a hold-RB turbo at 2.5x (Shift in the sim's keyboard mode).
+
+Scaling commanded velocity alone measured only about 8 percent faster in sim. That number didn't make sense until I remembered the anti-lockout leash from June: the wrist-pivot target is never allowed to run more than 10 mm ahead of where the arm actually is, which is what stopped the integrator from winding up and pinning the elbow. It's also, it turns out, the de facto speed cap. The arm chases a target at most one leash ahead, so no matter what velocity you command, you get one leash per tick. Turbo now scales the leash too. The slew and jerk caps are untouched, and there's a test asserting turbo can't violate continuity.
+
+Writing the speed test surfaced a geometry trap worth remembering. At the home pose the arm is near full extension, so jogging +X parks both runs on the workspace boundary and jogging -X rides the slew cap. Both runs come out identical and hide the speed difference entirely. Only lateral motion, pan-dominated, has honest Cartesian headroom. If your benchmark shows no difference, check whether the benchmark can show one.
+
+## The gripper lag was a register nobody wrote
+
+The gripper trigger was already an absolute map (released = closed, squeezed = open), so any lag between my finger and the jaw was pure servo. lerobot's setup maxes the servo's acceleration and softens its P gain to avoid buzz, but never writes `Goal_Velocity`, so whatever profile-speed cap was left stored in the servo was silently throttling the jaw. Cleared to zero (unlimited) on connect, gripper motor only. Now it's 1:1.
+
+This was the "it's the velocity limit, not the P gain" lever I'd flagged back in June when raising P made the whole arm shake. It just took two months to go find the register.
+
+## Hand-guided macros
+
+`dume record` prompts for a name and a digit key, counts down 3-2-1, cuts torque so the arm goes limp, and samples the measured joints at 50 Hz until you hit space. In `dume run`, pressing the digit joint-moves to the first frame, streams the recording tick-for-tick in the same time frame you demonstrated, then re-seats the velocity-jog state so the sticks come back with no jump.
+
+Two bugs showed up in real use, and both got diagnosed from the saved macro files rather than the code:
+
+- **"There's a delay before it starts."** Idle head and tail frames. The hand travelling from keyboard to arm after the countdown (2.3 seconds on take one) and the reach back to the spacebar (1.7 seconds) replay as dead air. Now `trim_idle` cuts still frames at save time, with a threshold set just above feedback jitter.
+- **"20 to 30 second delay, and then teleop is dead."** With torque off, a hand can push joints past the software limits, and both recorded macros had the shoulder 7 to 10 degrees past its limit. The goto-start phase clamps its commands every tick, so the 0.5 degree arrival check could never pass. It burned the whole 15 second timeout, and the still-set joint target outranked stick input afterward, locking teleop out permanently. Fixed by clamping at three layers: the goto target on entry, every macro frame before streaming, and an unconditional clear of the target after the goto phase.
+
+Two smaller ones from the same day. The gripper "initialised 50 percent open" every launch: SDL reports exactly 0.0 for an axis until its first real event, and the trigger map `(axis + 1) / 2` turns that into a phantom half-pull. Triggers now latch released until the axis has reported its rest position once. And space now toggles a limp gripper during teleop, torque cut on the jaw only so you can position it by hand while the arm keeps holding. The servo ignores streamed goals while torque is off, so the control loop needed no changes at all.
+
+The pattern across the whole day: every symptom I reported traced to a mechanism the code path made non-obvious (the leash as speed cap, a stored servo register, out-of-limit hand poses, SDL axis init), and every fix was checked against measured data before it was believed.
+
+## Then the arm went away
+
+I didn't have the arm for most of September. That pushed two decisions.
+
+First, I ripped out the end-effector camera. The Arducam I'd glued into the claw is physically off the arm, and with it went the whole flown-stereo and point-cloud stack I'd built in July: the camera frame in the URDF, the mount transform, capture, live view, scan, the cloud viewer. About a dozen modules and three CLI commands. It was a real design (relative pose from two forward-kinematics views, DLT triangulation, PCA grasp), and it was never going to be the right one. A camera on the end effector means the thing you're looking at moves every time you move. The new direction is a fixed camera over the desk and the robot localized in the camera's frame. Not built yet.
+
+Second, I built force sensing, because it's the slice of the roadmap I could design and test in sim without touching hardware. The spec runs from load plumbing (this slice) through a grasp/crush guard, collision detection, admittance compliance, and eventually a zero-g mode where the arm holds itself up and you push it around.
+
+What shipped:
+
+- **Gravity torques from the model.** Placo's static gravity compensation gives the torque each joint needs to hold the current pose, checked against a finite-difference of potential energy. Only mass and center of mass matter for static gravity, not inertia, and the URDF has CAD masses for all nine links. Removing the camera helped here: no payload term to guess.
+- **`read_loads()` on every arm backend.** The real arm reads the servo's `Present_Load` register. The PyBullet arm reports applied motor torque, and PyBullet and Placo agree to four decimal places, which pinned the sign convention. The headless sim arm takes an injectable load source for tests. A guard at connect asserts the servos' drive modes are zero, so a flipped sign can't sneak in.
+- **A `ForceEstimator`.** Measured load minus modelled gravity, EMA-filtered, with a per-joint friction deadband, mapped to an end-effector wrench through the pseudoinverse of the Jacobian transpose over the five arm joints. It works in raw servo units with a `scale` seam defaulting to 1.0, because I don't yet know the register's units in newton-meters.
+- **`dume feel`.** A live readout of load, gravity, and residual per joint, with CSV logging.
+
+Here is the honest status: 219 tests pass and none of them has touched the arm. The first hardware task is reading the achieved loop rate with the extra bus read on every tick. The second is a calibration sweep — hold a grid of static poses, log, regress measured load against modelled gravity to get the real `scale`. The width of the hysteresis band in that regression is the stiction, and it's the go/no-go for admittance control later. If the servo's load reading is too coarse or too laggy, the whole compliance branch of the roadmap dies there, and I'd rather know that from a CSV than from a plan.
+
+## Where it stands
+
+Teleop is genuinely good now: fast, 1:1 gripper, macros on the digit keys, limp mode on space. Force sensing is plumbed end to end and waiting for the arm to come back. The sim-fidelity work — making every command runnable against the physics arm instead of just `dume sim` — is designed halfway and paused. Code's at [github.com/paarth-r/Dum-E](https://github.com/paarth-r/Dum-E).
