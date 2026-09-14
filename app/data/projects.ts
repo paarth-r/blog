@@ -30,6 +30,28 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    id: 'metanoia',
+    title: 'Metanoia',
+    description:
+      'A social goal-tracking app built around a 30-day reset: daily non-negotiables, weekly targets, friends and groups, a live feed of ticks. Web + iOS on one Supabase backend.',
+    href: 'https://paarth-r.github.io/metanoia',
+    year: '2026',
+    tech: ['React Native', 'Expo', 'Supabase', 'Postgres RLS', 'PWA'],
+    featured: true,
+    githubRepo: 'paarth-r/metanoia',
+    updates: [
+      { date: '2026-08-30', text: 'App Store compliance built: in-app account deletion, block/report/filter moderation with a review queue, privacy policy. Email confirmation dropped in favor of one-screen signup.' },
+      { date: '2026-08-29', text: 'Days calendar with daily todos on both clients. A repeating todo is one row plus one tick row per date, so history stays immutable and late ticks just work.' },
+      { date: '2026-08-26', text: 'Native **React Native / Expo** app at full parity with the web, then the leather-ledger redesign, group chat with images, feed reactions, invites, and per-group silence.' },
+      { date: '2026-08-25', text: 'Went from a single static page to a **multi-user Supabase app** in one day: RLS privacy tiers, friends, groups with invite codes, realtime feed, public profiles.' },
+    ],
+    abstract: `**Metanoia** is a habit tracker that became a social app. It started on August 25 as one static HTML file for my own 30-day reset (seven daily non-negotiables, weekly targets, a ledger that fills black on perfect days). By the end of the week it was a multi-user app: friends, groups with chat and invite codes, a realtime feed of everyone's ticks with reactions, public profiles, and a Days calendar with daily todos.
+
+One Supabase backend sits behind the vanilla-JS web app and the React Native client. Privacy is enforced in **row-level security**, not in the clients: a plan is private, friends-only, or public, and the anonymous REST API returns exactly what a stranger may see. No service-role key ships anywhere. Account deletion, blocking, reporting, and a banned-term filter are built in for App Store review.
+
+Live at [paarth-r.github.io/metanoia](https://paarth-r.github.io/metanoia), iOS build headed for TestFlight, source on [GitHub](https://github.com/paarth-r/metanoia).`,
+  },
+  {
     id: 'jarvis',
     title: 'Jarvis',
     description:
@@ -57,6 +79,9 @@ Packaged, public, and documented—MIT-licensed on [GitHub](https://github.com/p
     featured: true,
     image: '/images/hyperform.png',
     updates: [
+      { date: '2026-09-07', text: 'Full audit of the correction engine before rebuilding motion grading: nine findings, each cited to file and line. The biggest is that 592 tests pass and none of them answers "is this rep bad" — building the labeled corpus and harness first.' },
+      { date: '2026-08-13', text: 'Kiosk restart on the real target: a 27" portrait display (1440x2560). QR download dialog shipped; BLE-proximity fast sign-in designed.' },
+      { date: '2026-07-27', text: 'Rep-mechanics merged to main: motion-segmented reps with a personal baseline stage, validated on the live rig against a real bicep-curl session.' },
       { date: '2026-06-14', text: 'Designing a new full-body capture rig—portrait-mounted cameras, ~20–30 cm baseline, M12 lens—for clean tracking out to 2 m.' },
       { date: '2026-06-10', text: 'Picked **push-up** as the second exercise (over golf): it maps cleanly onto the COCO-17 pipeline as a horizontal squat. Traced the squat correction pipeline end-to-end as the template.' },
       { date: '2026-06-09', text: 'Went from stereo to a **3-camera rig**—all three calibrated (ChArUco intrinsics, ~0.3 px RMS), with an N-view confidence-weighted triangulation pipeline pushed.' },
@@ -64,25 +89,31 @@ Packaged, public, and documented—MIT-licensed on [GitHub](https://github.com/p
     ],
     abstract: `**Hyperform** uses computer vision to make fitness more accessible: real-time 3D pose estimation and form feedback for at-home and in-gym workouts.
 
-A synchronized multi-camera rig (now three calibrated cameras) reconstructs a 17-keypoint 3D skeleton in metric space at up to 120 fps via N-view triangulation. On top sits a **correction engine** that evaluates body metrics against per-exercise rules—angle, symmetry, trajectory, tempo, and DTW—and streams live form cues to a React Native (Expo) kiosk over WebSocket. Exercises are markdown specs with YAML frontmatter, so adding a movement means writing a file, not code.
+A synchronized, ChArUco-calibrated stereo rig (two global-shutter cameras, 22° toe-in) reconstructs a 17-keypoint 3D skeleton in metric space via N-view triangulation. On top sits a **correction engine** that segments reps from motion, evaluates body metrics against per-exercise rules—angle, symmetry, trajectory, tempo, and DTW—and streams live form cues to a React Native (Expo) kiosk on a 27" portrait display over WebSocket. Exercises are markdown specs with YAML frontmatter, so adding a movement means writing a file, not code.
 
-Solo-built across vision, hardware, and app. Pre-revenue and raising a first round; live at [hyperformfit.com](https://hyperformfit.com).`,
+Solo-built across vision, hardware, and app; 592 tests on main. Current work is a labeled corpus and harness so form verdicts are measured, not assumed. Live at [hyperformfit.com](https://hyperformfit.com).`,
   },
   {
     id: 'dum-e',
     title: 'dum-e',
     description:
-      'A jitter-free, Xbox-driven inverse-kinematics controller for the LeRobot SO-101 arm—plus a PyBullet sim rig and a diffusion-policy imitation-learning scaffold.',
+      'A jitter-free, Xbox-driven inverse-kinematics controller for the LeRobot SO-101 arm—turbo teleop, hand-guided macros, a PyBullet sim with emergent grasping, and a first slice of force sensing.',
     href: 'https://github.com/paarth-r/Dum-E',
     year: '2026',
-    tech: ['Python', 'Robotics', 'IK', 'PyBullet', 'placo'],
+    tech: ['Python', 'Robotics', 'IK', 'PyBullet', 'placo', 'Force Sensing'],
     featured: true,
     githubRepo: 'paarth-r/Dum-E',
+    updates: [
+      { date: '2026-09-14', text: '**Force sensing, slice 1:** gravity torques from the model, `read_loads()` on every backend, a `ForceEstimator` mapping residual load to an end-effector wrench, and `dume feel`. 219 tests; hardware calibration sweep is next. End-effector camera stack removed in favor of a fixed desk camera.' },
+      { date: '2026-08-09', text: 'On-hardware teleop overhaul: 2.5x hold-RB turbo (the anti-lockout leash was the real speed cap), 1:1 gripper after clearing a stored servo velocity cap, hand-guided macros on the digit keys, latched triggers, limp-gripper toggle.' },
+      { date: '2026-07-05', text: 'Physical grasp sim: the PyBullet arm is now the real backend the controller drives, and grasping is emergent from friction and bounded gripper force instead of a magnet.' },
+      { date: '2026-07-01', text: 'Posture-aware IK landed: a nullspace bias toward an elbow-up rest pose fixes the full-extension fold-and-lockout that limit avoidance alone could not.' },
+    ],
     abstract: `**dum-e** is a library and CLI for controlling a [LeRobot SO-101](https://github.com/huggingface/lerobot) arm—a 5-DOF, ~$100 hobby arm—with an Xbox controller. Named after the clumsy robot arm from the Iron Man workshop.
 
 The interesting problem wasn't the IK, it was making teleop *feel good*. Reading noisy servo encoders straight back into the control loop makes the arm buzz and chase a jittering target. The fix (the same one Stanford's TidyBot++ uses): never track measured feedback—maintain an internal **commanded reference** \`q_ref\` and integrate all motion from that, using damped-least-squares IK plus a jerk cap. The result is teleop that feels connected instead of twitchy.
 
-On top sits an interactive **PyBullet sim** (Xbox + keyboard, a grabbable box, OnShape-style orbit/pan navigation) with a synthetic depth camera for hardware-free testing, plus the scaffolding for a TidyBot++-style **diffusion-policy imitation-learning** pipeline. Live on real hardware and pushed to [GitHub](https://github.com/paarth-r/Dum-E).`,
+On top sits an interactive **PyBullet sim** (Xbox + keyboard, OnShape-style orbit/pan navigation) where the physics arm is the real backend the controller drives and grasping is emergent from friction, plus hand-guided macro recording, a 2.5x turbo, and the first slice of **force sensing**: measured servo load minus modelled gravity, mapped to an end-effector wrench. Live on real hardware, MIT-licensed, pushed to [GitHub](https://github.com/paarth-r/Dum-E).`,
   },
   {
     id: 'storepose',
@@ -95,6 +126,10 @@ On top sits an interactive **PyBullet sim** (Xbox + keyboard, a grabbable box, O
     featured: true,
     githubRepo: 'paarth-r/storePose',
     updates: [
+      { date: '2026-09-04', text: 'Handover closed: README branch fast-forwarded to main, final run **1,236/1,236** tests green.' },
+      { date: '2026-08-11', text: 'Final demo delivered at Mashgin on the live two-camera rig, running on a Jetson AGX Orin.' },
+      { date: '2026-08-07', text: 'Re-id gating overhaul deployed to the Jetson: a spawn gate for new identities, no-torso-no-ID, an absorb bar with a 30-minute TTL, and proximity-relieved re-link floors.' },
+      { date: '2026-07-21', text: '**Multi-camera fusion** merged to main, with point-pick calibration across cameras.' },
       { date: '2026-07-09', text: '**Live 3D scene viewer** shipped to main: a point-cloud reconstruction of the store next to the video feed, with live floor markers.' },
       { date: '2026-06-29', text: 'Found that monocular depth reconstruction of the store floor **bows up to 0.7m at range** — not a calibration bug. Moving to a manual four-point homography for the exact-location heatmap.' },
       { date: '2026-06-25', text: 'Shipped a **BoT-SORT-style gated re-id fusion** — appearance only counts when geometry already agrees — plus an `--ignore-zone` to stop static props from stealing identities.' },
@@ -102,9 +137,9 @@ On top sits an interactive **PyBullet sim** (Xbox + keyboard, a grabbable box, O
     ],
     abstract: `**storePose** turns ordinary store-camera video into a live answer to one operational question — how busy is the checkout line, right now? — and a measured comparison between a Mashgin self-checkout and a staffed lane.
 
-It detects every person, fits a 17-keypoint pose, tracks each one with a stable identity through occlusions (SORT-style Kalman + IoU, One-Euro smoothing, gated appearance re-id that never overrides geometry), and runs a per-person state machine that splits a visit into waiting and being served. From that it derives a calibrated Low/Medium/High busy signal, per-checkout service times, and a live browser dashboard — on a laptop, in realtime.
+It detects every person, fits a 17-keypoint pose, tracks each one with a stable identity through occlusions (SORT-style Kalman + IoU, One-Euro smoothing, gated appearance re-id that never overrides geometry, spawn-gated identities), fuses two cameras into one floor-plane track, and runs a per-person state machine that splits a visit into waiting and being served. From that it derives a calibrated Low/Medium/High busy signal, per-checkout service times, and a live browser dashboard — in realtime on a Jetson Orin, or on a laptop.
 
-Built and shipped during a research placement at Mashgin. 572 tests passing, MIT-licensed, [on GitHub](https://github.com/paarth-r/storePose).`,
+Built and shipped during a research placement at Mashgin. 1,236 tests passing, MIT-licensed, [on GitHub](https://github.com/paarth-r/storePose).`,
   },
   {
     id: 'claudemaxxing',
@@ -150,7 +185,7 @@ On top of the physics sits a full progression loop—a persistent profile with f
       'A focus app designed to fix attention spans through incentivization, gamification, and a strict five-minute daily limit. Launch soon.',
     year: '2025',
     tech: ['React Native', 'Supabase', 'Stripe', 'Productivity'],
-    featured: true,
+    featured: false,
     abstract: `**Flowstate** is a focus app built to repair attention spans. It uses **incentivization** and **gamification** to make deep work rewarding—and you can only use it for **five minutes a day**.
 That's all it needs. Launch soon.`,
     updates: [
@@ -161,16 +196,19 @@ That's all it needs. Launch soon.`,
     id: 'odin',
     title: 'Odin',
     description:
-      'A macOS notch utility that turns your MacBook notch into a control center: media control, calendar, AI chat, file shelf, and system monitoring.',
+      'A macOS notch utility that turns your MacBook notch into a control center: media control, calendar, a multi-provider AI chat with slash commands, file shelf, and system monitoring.',
     href: 'https://github.com/paarth-r/odin',
-    year: '2025',
-    tech: ['Swift', 'SwiftUI', 'macOS', 'Claude', 'Replicate'],
+    year: '2025 - 2026',
+    tech: ['Swift', 'SwiftUI', 'macOS', 'AppKit', 'Claude'],
     featured: false,
     image: '/images/odin.png',
     githubRepo: 'paarth-r/odin',
-    abstract: `**Odin** (odinv2) is a macOS utility that transforms your MacBook's notch into an interactive control center. Built with Swift and SwiftUI, it provides media control (Apple Music, Spotify, YouTube Music), calendar integration, **AI chat** powered by Claude via Replicate, a file shelf with AirDrop, and system monitoring—all from the menu bar.
+    updates: [
+      { date: '2026-08-03', text: 'AI chat rebuilt around **three wire formats** (Anthropic Messages, OpenAI Chat Completions, Replicate) instead of one vendor: Claude by default, plus OpenAI, OpenRouter, Ollama, or any custom URL. Slash commands, a real markdown renderer, and a pile of AppKit panel/focus/gesture fixes.' },
+    ],
+    abstract: `**Odin** (odinv2) is a macOS utility that transforms your MacBook's notch into an interactive control center. Built with Swift and SwiftUI, it provides media control (Apple Music, Spotify, YouTube Music), calendar integration, a file shelf with AirDrop, system monitoring, and an **AI chat** panel that drops out of the notch—all from the menu bar.
 
-Hover to expand, swipe to open or close, and customize gestures and appearance. Chat history is stored locally; no telemetry. Requires macOS 14 Sonoma or later and a notch-equipped MacBook. Based on the [boring.notch](https://github.com/TheBoredTeam/boring-notch) foundation; open source under GPL-3.0.`,
+The chat is provider-agnostic by design: it models three wire formats rather than three companies, so Claude (the default), OpenAI, OpenRouter, a local Ollama, or any self-hosted gateway work with a base URL and a key. Slash commands cover model, provider, effort, and thinking; the markdown renderer handles tables and fenced code with a copy button. Chat history is stored locally; no telemetry. Requires macOS 14 Sonoma or later and a notch-equipped MacBook. Based on the [boring.notch](https://github.com/TheBoredTeam/boring.notch) foundation; open source under GPL-3.0.`,
   },
   {
     id: 'blog',
@@ -180,7 +218,7 @@ Hover to expand, swipe to open or close, and customize gestures and appearance. 
     href: 'https://github.com/paarth-r/blog',
     year: '2025',
     tech: ['Next.js', 'MDX', 'TypeScript', 'Vercel'],
-    featured: true,
+    featured: false,
     image: '/images/blog.png',
     githubRepo: 'paarth-r/blog',
     abstract: `This **blog and portfolio** is the site you're on—[paarth-r.vercel.app](https://paarth-r.vercel.app). Built with **Next.js**, **MDX** for posts, and deployed on Vercel.
