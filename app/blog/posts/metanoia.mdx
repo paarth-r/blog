@@ -1,0 +1,63 @@
+---
+title: "Metanoia: A 30-Day Habit Tracker That Became a Social App in a Week"
+publishedAt: '2026-08-31'
+summary: "I wanted a scorecard for a 30-day reset. It started as one static HTML file, and six days later it was a Supabase-backed social app with a React Native client, groups, chat, and a moderation queue. Here's what happened in between, and the bugs that mattered."
+---
+
+*Metanoia* is the Greek word for a real change of heart and mind — turning your life around, not tweaking it. On August 25 I started a 30-day reset under that name: seven daily non-negotiables (phone-free first 30 minutes, a 90-minute deep work block, 20 minutes of philosophy, zero short-form video, an evening review, and a couple more), plus weekly targets like lifting three times and one round of golf. The tick is the unit. You control whether the box gets ticked, not the outcome. That's the whole Stoic frame, and week one's reading was Marcus Aurelius for exactly that reason.
+
+I needed somewhere to tick the boxes. That's the whole reason [Metanoia the app](https://paarth-r.github.io/metanoia) exists, and it's a good case study in how a tool for yourself becomes a product if you don't stop it.
+
+## Day 1: one HTML file
+
+The first version was a single static `index.html` on GitHub Pages — no backend, no build step, state in `localStorage`. A four-step walkthrough (name and why, start date, three to seven non-negotiables with suggestions, weekly targets with counts), then a 30-day ledger: streak, perfect-day count, running average, a grid where a perfect day fills black and a zero day goes red, and a rotating Marcus / Seneca / Epictetus quote at the top. Monochrome, Cormorant for headings, Plex Mono for numbers.
+
+That worked for about four hours. The problem with a tracker that only lives in your browser is that nobody can see it, and the whole point of a reset is that the scorecard is the verdict, not your feelings. If nobody else can see the scorecard, it's easy to negotiate with.
+
+## Day 1, later: GitHub as a backend
+
+So the second version published ticks. Every tick became a commit — the page wrote a JSON file into the repo through the GitHub Contents API with a fine-grained token only I hold, and a read-only account page rendered the live ledger for anyone who typed in a name. Anyone could watch, only I could write. My streak was literally in the commit history.
+
+It was a cute hack and it lasted one evening, because the moment I thought "my friends should do this too" the design had no answer. One token, one writer, one ledger.
+
+## Day 1, even later: the rebuild
+
+Same day, I rebuilt it as a multi-user app. Supabase behind it: eight tables, twenty-four row-level security policies, six security-definer functions, all installed by pasting SQL into the dashboard editor in batches. The frontend stayed vanilla JS with hash routes — no bundler, no framework — because the existing pattern worked and switching stacks mid-week is how you lose a week.
+
+Privacy lives in RLS, not in the clients. A plan is private, friends-only, or public. Friends see friends-tier plans, group-mates see friends-tier plans, and the anonymous REST API returns exactly what a stranger is allowed to see and nothing else. I verified this by hitting the API with no auth and reading the responses, not by trusting the UI.
+
+Then the client side snowballed: a realtime notification feed with a nav badge, friends with request and accept, groups with invite codes, public profiles at `#/u/<username>`, guest mode that imports your local ledger the moment you sign in.
+
+## Day 2: the phone
+
+I was ticking boxes on my phone, so it needed to be a phone app. First an installable PWA (manifest, generated icons, a network-first service worker, iOS meta tags). Then, the same day, a real React Native app under Expo — full parity with the web: the ledger with its day grid and weekly targets, the wizard, the feed, friends, groups, profiles, account settings.
+
+Then a redesign, because a stoic monochrome page reads differently on a phone than on a desktop. The mobile app became a leather ledger: parchment and saddle tokens, stitched cards, gold rule headers, a pillbox tab bar. The web got the same theme so they'd feel like one thing. Groups got chat with images, feeds got reactions (respect / locked in / soft), the main feed got pill filters and a per-group silence toggle, and invites became a share sheet with a join link.
+
+## The design decisions I'd keep
+
+**A repeating todo is one row plus one tick row per date.** When I added a Days calendar with daily todos, the tempting design was to materialize a todo per day. Instead the definition lives in one row (does it repeat, when does it start and end) and completion lives in a separate table keyed by `(todo_id, date)`. That single choice buys the daily refresh for free — a new date simply has no tick yet — keeps history immutable, and lets you open last Tuesday and tick it late. No nightly job, no row explosion. Deleting a repeat sets its end date to the later of yesterday and the last ticked day, so deleting on a day you already earned doesn't erase the tick.
+
+**Dates come from the client, never from Postgres.** `current_date` on the server is UTC. At 6pm in California that's already tomorrow. Every date in the app routes through the client's local-time "today."
+
+**Identity is claimed at signup.** The original signup trigger inserted a profile with only an ID — no username, empty display name — so every new account read as "unnamed" with a dead profile link until the person happened to find the Account page. A real friend hit this. Now both signup forms collect username and display name up front, and both clients block behind a claim screen if a signed-in profile somehow has no username.
+
+**Email confirmation was dropped rather than solved.** Supabase's built-in mailer caps out at a couple of emails an hour, which kills a beta wave instantly. The plan was a custom SMTP provider. The better plan was to delete the problem: signup is one screen, no confirmation link. The tradeoff is that a typo'd email means that person can never reset their password. I'll take it.
+
+**No service-role key ships anywhere.** Account deletion looked like it needed an edge function, since clients can't touch the auth table. A `security definer` function owned by the database role deletes the caller's own row and everything cascades. Blocking is enforced in RLS, so it holds over the raw API too, and it's symmetric, so a block can't become one-way surveillance.
+
+## The bugs that mattered
+
+**Silent data loss, three defects compounding.** A failed fetch of the plan's days was treated as an empty result, so the ledger rendered every day unticked to someone mid-streak. Because the ledger upserts whole arrays, one tap against that blank base overwrote the real day on the server. Meanwhile the flush cleared its dirty flags *before* awaiting the write, so a failed save was dropped and never retried. And it wrapped everything in `try/catch` when supabase-js resolves with `{error}` rather than throwing — so the catch never fired and a failed upsert still said "Saved to your ledger." A dropped request silently deleted ticks and told you it had saved them. The lesson generalizes: an error path that returns a value instead of raising will pass every `try/catch` you wrap around it.
+
+**The stale service worker.** After a push, the live site served the new files over the network but the browser kept running the old `app.js`, and a brand-new module wasn't in the cached shell at all. Two defects: new shell files were never added to the precache list, and the cache name was hardcoded and never bumped, so `install` never re-ran and `activate` never evicted. An installed PWA would serve the old shell forever no matter what I deployed. Standing rule, written at the point of the mistake: bump the cache version whenever a shell file changes. Applied twice more the same day.
+
+Both of these were caught by verifying on the real deploy, not localhost. Localhost has no service worker to go stale and no network to drop.
+
+## App Store
+
+The iOS app is headed for TestFlight. Before touching it I listed the guaranteed rejections and built all three: in-app account deletion (mandatory for any app with signup), user-generated-content moderation (filtering, reporting, blocking, and published contact info — group chat and public ledgers are UGC), and a privacy policy. Sign in with Apple isn't required since there's no third-party login. Also added an error boundary, because a render throw in React Native unmounts the whole tree into an app you have to force-quit, and a retry path so a bad network never produces a false "saved."
+
+## What it's for
+
+The reset itself is going fine — not perfectly, which is the point of a scorecard. Week one closed under 50 percent. The app is what made that number honest instead of a feeling. A few friends are on it now with their own plans, and the feed of other people's ticks turns out to be a stronger nudge than any notification. Code is at [github.com/paarth-r/metanoia](https://github.com/paarth-r/metanoia); the web app is live at [paarth-r.github.io/metanoia](https://paarth-r.github.io/metanoia).
