@@ -186,7 +186,7 @@ Also has a GitHub-style usage heatmap that persists permanently across restarts,
     ],
     abstract: `**golfn** is a 3D golf game that runs in a browser tab, no build step: Three.js for rendering, PeerJS for peer-to-peer parties of up to five (with a Supabase relay when networks won't connect directly), twelve clubs, a drivable cart, and a clubhouse hub with a pro shop, lockers, stats, and a driving range.
 
-The centerpiece is **Pebble Beach**. Nothing is hand-modeled: fairways, greens, tees, bunkers, cart paths, the coastline, and the Lodge footprint come from OpenStreetMap, and the ground is USGS 3DEP bare-earth lidar at 1 m, with 0.5 m grids on the greens so their real contours putt the way they should. Where the map data is wrong (a hole drawn from a forward tee, a green that isn't mapped), the build corrects it against the scorecard. [Play it here](https://golfn-steel.vercel.app).`,
+The centerpiece is **Pebble Beach**. Nothing is hand-modeled: fairways, greens, tees, bunkers, cart paths, the coastline, and the Lodge footprint come from OpenStreetMap, and the ground is USGS 3DEP bare-earth lidar at 1 m, with 0.5 m grids on the greens so their real contours putt the way they should. Where the map data is wrong (a hole drawn from a forward tee, a green that isn't mapped), the build corrects it against the scorecard. Full write-up with screenshots: [Building Pebble Beach in a Browser From Lidar and Map Data](/blog/golfn-pebble-beach-lidar). [Play it here](https://golfn-steel.vercel.app).`,
   },
   {
     id: 'metanoia',
