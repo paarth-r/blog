@@ -129,27 +129,25 @@ On top sits an interactive **PyBullet sim** (Xbox + keyboard, OnShape-style orbi
     id: 'storepose',
     title: 'storePose',
     description:
-      'Real-time store analytics for Mashgin: multi-person pose tracking, queue state, and a calibrated busy signal from ordinary store-camera video.',
-    href: 'https://github.com/paarth-r/storePose',
+      'Real-time store analytics from ordinary store-camera video: multi-person pose tracking, queue state, and a calibrated busy signal. Built during a research placement at Mashgin.',
     year: '2026',
-    tech: ['Python', 'Computer Vision', 'RTMPose', 'YOLOX', 'Tracking', 'ONNX Runtime'],
+    tech: ['Python', 'Computer Vision', 'Pose Estimation', 'Tracking', 'Edge Deployment'],
     featured: true,
-    githubRepo: 'paarth-r/storePose',
     updates: [
-      { date: '2026-09-04', text: 'Handover closed: README branch fast-forwarded to main, final run **1,236/1,236** tests green.' },
-      { date: '2026-08-11', text: 'Final demo delivered at Mashgin on the live two-camera rig, running on a Jetson AGX Orin.' },
-      { date: '2026-08-07', text: 'Re-id gating overhaul deployed to the Jetson: a spawn gate for new identities, no-torso-no-ID, an absorb bar with a 30-minute TTL, and proximity-relieved re-link floors.' },
-      { date: '2026-07-21', text: '**Multi-camera fusion** merged to main, with point-pick calibration across cameras.' },
-      { date: '2026-07-09', text: '**Live 3D scene viewer** shipped to main: a point-cloud reconstruction of the store next to the video feed, with live floor markers.' },
-      { date: '2026-06-29', text: 'Found that monocular depth reconstruction of the store floor **bows up to 0.7m at range** — not a calibration bug. Moving to a manual four-point homography for the exact-location heatmap.' },
-      { date: '2026-06-25', text: 'Shipped a **BoT-SORT-style gated re-id fusion** — appearance only counts when geometry already agrees — plus an `--ignore-zone` to stop static props from stealing identities.' },
-      { date: '2026-05-30', text: 'First commit: realtime multi-person pose (YOLOX + RTMPose) pipeline.' },
+      { date: '2026-10-05', text: 'Measured three re-identification fixes against hand labels and shipped none of them; the real cause is upstream in tracking. One small detection filter did ship.' },
+      { date: '2026-09-24', text: 'Packaged the demo so it can be hosted by someone other than me.' },
+      { date: '2026-09-20', text: 'Built hand-labelled identity ground truth so tracking changes get measured instead of eyeballed.' },
+      { date: '2026-08-11', text: 'Final demo delivered on a live two-camera setup, running in realtime on edge hardware.' },
+      { date: '2026-07-21', text: '**Multi-camera fusion:** two cameras combined into one floor-plane view of the store.' },
+      { date: '2026-07-09', text: 'Live 3D view of the store alongside the video feed.' },
+      { date: '2026-06-29', text: 'Learned that monocular depth bends a flat store floor at range; switched approaches for exact floor positions.' },
+      { date: '2026-05-30', text: 'First realtime multi-person pose pipeline running.' },
     ],
-    abstract: `**storePose** turns ordinary store-camera video into a live answer to one operational question — how busy is the checkout line, right now? — and a measured comparison between a Mashgin self-checkout and a staffed lane.
+    abstract: `**storePose** turns ordinary store-camera video into a live answer to one operational question: how busy is the checkout line, right now?
 
-It detects every person, fits a 17-keypoint pose, tracks each one with a stable identity through occlusions (SORT-style Kalman + IoU, One-Euro smoothing, gated appearance re-id that never overrides geometry, spawn-gated identities), fuses two cameras into one floor-plane track, and runs a per-person state machine that splits a visit into waiting and being served. From that it derives a calibrated Low/Medium/High busy signal, per-checkout service times, and a live browser dashboard — in realtime on a Jetson Orin, or on a laptop.
+It detects every person in frame, estimates their pose, follows each one with a stable identity through occlusions, combines multiple cameras into one view of the floor, and splits each visit into waiting and being served. From that it produces a calibrated busy signal, service times, and a live dashboard, in realtime on edge hardware.
 
-Built and shipped during a research placement at Mashgin. 1,236 tests passing, MIT-licensed, [on GitHub](https://github.com/paarth-r/storePose).`,
+Built during a research placement at Mashgin. The code is private; the engineering lessons are on the blog.`,
   },
   {
     id: 'claudemaxxing',

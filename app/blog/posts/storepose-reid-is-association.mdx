@@ -4,7 +4,7 @@ publishedAt: '2026-06-25'
 summary: 'A month into building a real-time store analytics pipeline for Mashgin, the identity-swap bugs kept pointing away from "get a better embedding model" and toward "fix the gating logic." Here is why, and the stationary-prop bug that made the case unavoidable.'
 ---
 
-For the past month I've been building **storePose** — a real-time computer vision pipeline that answers one operational question for Mashgin: *how busy is the checkout line, right now?* It detects every person on a store camera, fits a 17-keypoint pose, tracks each one through occlusions with a stable identity, and derives a calibrated Low/Medium/High busy signal plus a measured comparison between Mashgin self-checkout and a staffed lane. Code's at [github.com/paarth-r/storePose](https://github.com/paarth-r/storePose), 572 tests passing as of this week.
+For the past month I've been building **storePose** — a real-time computer vision pipeline that answers one operational question for Mashgin: *how busy is the checkout line, right now?* It detects every person on a store camera, fits a 17-keypoint pose, tracks each one through occlusions with a stable identity, and derives a calibrated Low/Medium/High busy signal plus a measured comparison between Mashgin self-checkout and a staffed lane. 572 tests passing as of this week.
 
 The hardest part of that pipeline, by a wide margin, has been keeping identities stable. Not detection — YOLOX + RTMPose off the shelf is genuinely good. Identity, across occlusions, re-entries, and a busy frame full of similar-looking people in similar clothes.
 
