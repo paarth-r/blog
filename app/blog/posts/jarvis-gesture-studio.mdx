@@ -1,0 +1,77 @@
+---
+title: "Jarvis Gesture Studio: Teaching My Computer a New Gesture in Five Takes"
+publishedAt: '2026-10-28'
+summary: "Jarvis's gestures used to be hardcoded detectors that fired whenever your hand passed through a pose. I rebuilt them around one arbiter and a browser studio: record five takes of any hand shape, get a scorecard that rejects gestures too close to ones you already have, bind it to a media key, shortcut or macro, and it works the moment you save. No training step."
+---
+
+![The gesture studio recognizing a peace sign live](/images/jarvis-studio/live.jpg)
+
+*The studio's live view. Left: the tracked hand in 3D (drag to orbit), the active gesture, and how closely the hand matches each saved gesture. Right: every gesture and what it's bound to.*
+
+[Jarvis](/projects/jarvis) lets me control my Mac with my hand in the air: move the cursor, pinch to click, hold the pinch to drag. Last week it also got a voice. This week I fixed the part of gesture control that had been annoying me for a while, and built a tool on top of it that I've wanted from the start: a studio where you teach it a new gesture in about thirty seconds.
+
+## The problem: passing through a pose fired it
+
+Every gesture was its own detector, checked independently on every frame. Pinch was "thumb tip close to index tip." Point was "index straight, others curled." Each one fired on its own.
+
+The trouble is that hands move *through* shapes. When you close your hand into a fist, your thumb brushes your index finger on the way, so the pinch detector saw a pinch and clicked. Hold the fist and that pinch became a drag. Curl your fingers and the index lags the others for a frame, which reads as pointing, and pointing was bound to Cmd+Space, so Spotlight would pop open. Every new gesture meant writing a new detector and hoping it didn't collide with the old ones. The older learned model in the repo would have needed a full retrain for each gesture and had no "not a gesture" class at all.
+
+## One arbiter, one gesture at a time
+
+The fix is to have a single place decide which gesture is active. Each frame produces a *candidate*, which is what the hand looks like right now. A candidate only becomes the active gesture after it has led for a short dwell (150 ms by default; 100 ms for fist, 300 ms for point), and while one gesture is active nothing else can start. Transition poses last a frame or two, so they never fire. A fist that activates also cancels a pending pinch, so closing your hand no longer clicks.
+
+The dwell only applies to discrete gestures. Pinch-to-click keeps its own state machine with no added latency, because a cursor that feels slower would make the whole thing a regression.
+
+The fist became useful instead of a hazard. **Make a fist, then tilt it to scroll.** The palm's orientation at the moment the fist starts is the reference. Tipping your knuckles up or down scrolls, and the further you tilt the faster it goes, like a joystick, with an 8 degree dead zone so a resting fist does nothing.
+
+## Hand shape that doesn't care where your hand is
+
+To recognize a shape you need features that stay the same when the hand moves, turns or comes closer to the camera. Jarvis uses MediaPipe's metric "world" hand landmarks, which estimate the hand's 3D shape around its own center, and turns them into 23 numbers: 15 joint bend angles, 4 angles between neighboring fingers, and 4 thumb-tip-to-fingertip distances divided by palm width. Angles and ratios are unchanged by rotation and scale, so the same peace sign gives the same vector anywhere in frame. This also works from one webcam, because the shape comes from the model's per-hand depth estimate, not from stereo triangulation.
+
+## New gestures without training
+
+A custom gesture is just its recorded examples. Matching is nearest neighbor: how far the current hand's vector is from the closest saved example. This is the idea behind the [$1 recognizer](https://depts.washington.edu/acelab/proj/dollar/index.html) family, which gets very high accuracy from a handful of templates with no training.
+
+The part that makes it usable is the "none" case. Each gesture gets an **acceptance radius** fitted to how much its own takes vary (1.5 times the 90th-percentile distance between takes). A hand outside every radius is no gesture at all, and if two gestures both claim a hand without a clear margin between them, neither fires. The score bars in the studio are this distance as a fraction of the radius: 1 means dead on, 0 means at the edge or beyond.
+
+Gestures and bindings live in one JSON file that the runtime watches, so a gesture works the moment it's saved.
+
+## The studio
+
+The studio is a small web app served by Jarvis itself on localhost, so it shares the camera and the live hand stream. Adding a gesture takes five steps: name it, record takes, optionally record ten seconds of everyday hand movement, check it, then bind and save.
+
+![Recording a take](/images/jarvis-studio/recording.jpg)
+
+*Recording take 3 of a new "rock" gesture. A 3-second countdown, then hold for 1.5 seconds. While a take records, cursor control and gesture actions pause, so making the gesture doesn't click anything.*
+
+### A scorecard that says no
+
+The check scores a candidate on three things. Each gets pass, warn or fail with a plain explanation and a hint:
+
+- **Recognizable:** the tracker kept the hand in most frames and held it steadily. Shapes with hidden fingers make the tracker guess, and guesses jitter.
+- **Repeatable:** the takes agree with each other. An odd take is named and left out.
+- **Distinct:** far enough from every saved gesture relative to both radii, not read as fist or pinch (those are reserved), and not matching the everyday-movement clip, which is how it catches a gesture you'd make by accident.
+
+![A passing scorecard](/images/jarvis-studio/scorecard-pass.jpg)
+
+The check is there to say no. A score that always says "looks great" is decoration. Here's what happens when I try to add a "victory" gesture that's really just my peace sign again:
+
+![The studio rejecting a gesture too close to an existing one](/images/jarvis-studio/scorecard-fail.jpg)
+
+*Fail on Distinct: "Too close to 'peace'. They differ mostly in your ring and pinky." Notice that the live view on the left already reads the hand as peace.*
+
+It names the nearest gesture and which fingers separate them, so you know what to change. A fail blocks saving; a warning doesn't. The idea of rejecting new gestures that are too similar to existing ones or to everyday movement comes from research on [customizable gestures for wrist-worn devices](https://arxiv.org/abs/2203.15239), and MediaPipe's own gesture customization tooling makes the same point by requiring an explicit "none" class.
+
+It's strict with me too. My own two gestures, peace and pinky-thumb, both saved with a warning on Repeatable, because my real takes varied more than I thought they did, and pinky-thumb warns that it's on the near side of peace.
+
+### Bindings
+
+Any gesture can bind to a media key (play/pause, next, previous, volume, mute), a key combo (press it in the field, or type `cmd+shift+4`), typed text, a shell command, or a macro made of steps of those plus waits. "Repeat while held" re-fires on an interval, so holding a volume-up gesture keeps turning it up, and "Try it" runs the binding right away. My setup right now: point is previous track, peace is next track, and pinky-thumb is Ctrl+Up for Mission Control.
+
+Because a binding can run a shell command, the studio only listens on localhost and refuses requests from any other website. Otherwise any page open in your browser could send it a request.
+
+## Where it stands
+
+It's on a branch with 274 passing tests across the runtime and gesture code, built from a written design on October 27. The quality thresholds are first guesses I'm now tuning on my real hand. Motion gestures like swipes and circles are out of scope for this version: everything except scroll is a static shape, though the template format leaves room for sequences.
+
+A note on the screenshots: the studio never shows camera video, only the skeleton. To take these without filming myself, I drove the real studio server with a synthetic hand whose finger angles were fitted to match my saved gestures, so the matching, scores and verdicts above come from the actual code.

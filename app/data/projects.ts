@@ -33,7 +33,7 @@ export const projects: Project[] = [
     id: 'jarvis',
     title: 'Jarvis',
     description:
-      'A hands-free interface for my computer: hand tracking drives the cursor and clicks, and a voice agent ("hey Jarvis") runs a headless Claude Code with my whole second brain and talks back.',
+      'A hands-free interface for my computer: hand tracking drives the cursor, clicks and custom gestures you teach it in a browser studio, and a voice agent ("hey Jarvis") runs a headless Claude Code with my whole second brain and talks back.',
     href: 'https://github.com/paarth-r/jarvis',
     year: '2026',
     tech: ['Python', 'MediaPipe', 'Claude Agent SDK', 'Whisper', 'Kokoro TTS', 'asyncio'],
@@ -41,6 +41,7 @@ export const projects: Project[] = [
     image: '/images/jarvis.png',
     githubRepo: 'paarth-r/jarvis',
     updates: [
+      { date: '2026-10-27', text: '**Gesture studio:** one arbiter picks the active gesture after a short dwell, so passing through a pose no longer fires it (fist no longer clicks or opens Spotlight). Fist-then-tilt scrolls. New gestures from a browser studio in five takes with no training (few-shot nearest neighbour with fitted acceptance radii), a recognizable/repeatable/distinct scorecard that rejects near-duplicates, and bindings to media keys, shortcuts, text, shell or macros. [Write-up](/blog/jarvis-gesture-studio).' },
       { date: '2026-10-25', text: '**Voice agent:** "hey Jarvis" wake word, Whisper large-v3-turbo with vocabulary priming, end-of-turn detection, a headless Claude Code brain via the Agent SDK, Kokoro TTS. Plain-English approvals for outward actions, policy enforced in a pre-tool-use hook. Controls Mac audio and Spotify through a local room server.' },
       { date: '2026-10-21', text: 'Cursor rework: trackpad mode (relative + acceleration) built and rejected on feel; **box mode** (a self-placing 24x15 cm hand box mapped linearly to the screen, One-Euro filtered, pinch freeze) is the new default. Eye-tracking cursor prototype on a branch.' },
       { date: '2026-06-06', text: 'Core runtime shipped: stereo 3D hand tracking to cursor, pinch-click, and pointing at ~51 fps.' },
@@ -50,6 +51,8 @@ export const projects: Project[] = [
 The architecture is **event-driven** (asyncio pub/sub on the main thread): per-camera hand-pose modules feed a stereo-fusion module, a gesture FSM, and an action dispatcher, with a live visualizer overlaying 2D keypoints and a matplotlib 3D hand skeleton. A file/video replay path lets the whole pipeline run with no rig attached, plus stereo undistortion and a pointing gesture.
 
 The cursor now runs well on a single camera in **box mode**: a small virtual box that anchors where your hand appears, mapped linearly onto the screen, so small hand motions cover the whole display without the twitchiness of a raw mapping.
+
+Gestures are now taught, not coded: a browser-based **gesture studio** records a few takes of any hand shape, grades it for how recognizable, repeatable and distinct it is, and binds it to media keys, shortcuts or macros, live with no training step. Fist-then-tilt scrolls. ([More](/blog/jarvis-gesture-studio).)
 
 In October it got a voice. Say **"hey Jarvis"** and an always-on pipeline (openWakeWord, Whisper large-v3-turbo, an end-of-turn model, Kokoro TTS) hands your request to a headless **Claude Code** session through the Agent SDK, with the same memory, skills, and [second brain](/projects/secondbrain) I use at my desk. Anything outward-facing gets a short spoken summary and waits for a yes. Next: barge-in with echo cancellation, and eventually giving it control of [dum-e](/projects/dum-e).
 
