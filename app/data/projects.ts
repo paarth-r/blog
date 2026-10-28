@@ -64,6 +64,7 @@ MIT-licensed on [GitHub](https://github.com/paarth-r/jarvis).`,
     year: '2026',
     tech: ['Claude Code', 'Obsidian', 'Hooks', 'Skills', 'launchd', 'Python'],
     featured: true,
+    image: '/images/secondbrain.jpg',
     updates: [
       { date: '2026-10-25', text: 'Now the brain behind [Jarvis](/projects/jarvis) too: the voice agent runs a headless Claude Code against the same vault, memory, and skills.' },
       { date: '2026-10-19', text: 'Self-audit pass: parallel agents swept the wiki for contradictions, stale claims, orphan pages, and people mentioned without a page.' },
@@ -111,6 +112,7 @@ Solo-built across vision, hardware, and app; 592 tests on main. Current work is 
     year: '2026',
     tech: ['Python', 'Robotics', 'IK', 'PyBullet', 'placo', 'Force Sensing'],
     featured: true,
+    image: '/images/dum-e.jpg',
     githubRepo: 'paarth-r/Dum-E',
     updates: [
       { date: '2026-10-25', text: 'Next direction: stereo vision on the arm and [Jarvis](/projects/jarvis) driving it by voice — a real Dum-E.' },
@@ -133,6 +135,7 @@ On top sits an interactive **PyBullet sim** (Xbox + keyboard, OnShape-style orbi
     year: '2026',
     tech: ['Python', 'Computer Vision', 'Pose Estimation', 'Tracking', 'Edge Deployment'],
     featured: true,
+    image: '/images/storepose.jpg',
     updates: [
       { date: '2026-10-05', text: 'Measured three re-identification fixes against hand labels and shipped none of them; the real cause is upstream in tracking. One small detection filter did ship.' },
       { date: '2026-09-24', text: 'Packaged the demo so it can be hosted by someone other than me.' },
@@ -158,6 +161,7 @@ Built during a research placement at Mashgin. The code is private; the engineeri
     year: '2026',
     tech: ['Python', 'rich', 'Terminal UI'],
     featured: true,
+    image: '/images/claudemaxxing.jpg',
     githubRepo: 'paarth-r/claudemaxxing',
     updates: [
       { date: '2026-07-09', text: 'Redesigned pace as a real rate comparison — recent %/min vs. the ideal %/min to land at exactly 100% at reset — instead of a static elapsed-vs-used snapshot.' },
@@ -179,6 +183,7 @@ Also has a GitHub-style usage heatmap that persists permanently across restarts,
     year: '2026',
     tech: ['JavaScript', 'Three.js', 'WebRTC', 'GIS', 'Supabase'],
     featured: false,
+    image: '/images/golfn.jpg',
     updates: [
       { date: '2026-10-24', text: 'Pebble Beach rebuilt on USGS 1 m bare-earth lidar with 0.5 m grids on every green; carved bunkers, creeks and ponds in real beds, a reflective water shader.' },
       { date: '2026-09-18', text: 'Course picker and the Pebble Beach replica: every hole, bunker, cart path, and the coastline from OpenStreetMap; the Lodge clubhouse and the real practice range.' },
@@ -197,6 +202,7 @@ The centerpiece is **Pebble Beach**. Nothing is hand-modeled: fairways, greens, 
     year: '2026',
     tech: ['React Native', 'Expo', 'Supabase', 'Postgres RLS', 'PWA'],
     featured: false,
+    image: '/images/metanoia.jpg',
     githubRepo: 'paarth-r/metanoia',
     updates: [
       { date: '2026-10-19', text: 'Shelved. It did its job for the 30 days; I track goals by hand now.' },
@@ -219,6 +225,7 @@ Live at [paarth-r.github.io/metanoia](https://paarth-r.github.io/metanoia), iOS 
     year: '2025',
     tech: ['React Native', 'Supabase', 'Stripe', 'Productivity'],
     featured: false,
+    image: '/images/flowstate.jpg',
     abstract: `**Flowstate** is a focus app built to repair attention spans. It uses **incentivization** and **gamification** to make deep work rewarding—and you can only use it for **five minutes a day**.
 That's all it needs. Shelved before launch.`,
     updates: [
@@ -234,7 +241,6 @@ That's all it needs. Shelved before launch.`,
     year: '2025 - 2026',
     tech: ['Swift', 'SwiftUI', 'macOS', 'AppKit', 'Claude'],
     featured: false,
-    image: '/images/odin.png',
     githubRepo: 'paarth-r/odin',
     updates: [
       { date: '2026-08-03', text: 'AI chat rebuilt around **three wire formats** (Anthropic Messages, OpenAI Chat Completions, Replicate) instead of one vendor: Claude by default, plus OpenAI, OpenRouter, Ollama, or any custom URL. Slash commands, a real markdown renderer, and a pile of AppKit panel/focus/gesture fixes.' },
@@ -267,6 +273,7 @@ It includes the main blog with a CV research timeline, project pages with GitHub
     year: '2025',
     tech: ['Next.js', 'TypeScript', 'Tailwind'],
     featured: false,
+    image: '/images/impostor.jpg',
     githubRepo: 'paarth-r/impostor',
     abstract: `**Impostor** is a local party game I built for friends—inspired by the viral "impostor game." One word, one hint, one impostor: everyone but the impostor sees the word; the impostor only sees the hint. Players discuss and vote to find the impostor.
 

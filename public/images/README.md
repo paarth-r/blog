@@ -6,13 +6,20 @@ Drop hero images for each project here. They appear at the top of the project pa
 
 Use the same name as the project `id` in `app/data/projects.ts`:
 
-| Project ID   | Add this file      |
-|-------------|--------------------|
-| jarvis      | `jarvis.png`       |
-| hyperform   | `hyperform.png`    |
-| odin        | `odin.png`         |
-| blog        | `blog.png`         |
-| impostor    | `impostor.png`     |
+| Project ID    | File               |
+|---------------|--------------------|
+| jarvis        | `jarvis.png` |
+| secondbrain   | `secondbrain.jpg` |
+| hyperform     | `hyperform.png` |
+| dum-e         | `dum-e.jpg` |
+| storepose     | `storepose.jpg` |
+| claudemaxxing | `claudemaxxing.jpg` |
+| golfn         | `golfn.jpg` |
+| metanoia      | `metanoia.jpg` |
+| flowstate     | `flowstate.jpg` |
+| odin          | `odin.png (missing)` |
+| blog          | `blog.png` |
+| impostor      | `impostor.jpg` |
 
 Supported formats: `.png`, `.jpg`, `.jpeg`, `.webp`
 
