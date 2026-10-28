@@ -1,0 +1,59 @@
+---
+title: "Two Weeks: Jarvis Learns to Talk, and Debugging a Robot From Its Logs"
+publishedAt: '2026-10-26'
+summary: "Oct 12-25. Jarvis got a cursor mode that finally feels right (after one that didn't), an eye-tracking prototype, and a voice: say 'hey Jarvis' and a headless Claude Code with my whole second brain answers out loud. Plus robot debugging done entirely from log files, Hyperform back on the bench, and Pebble Beach rebuilt on 1 m lidar."
+---
+
+October 12 to 25. Most of my building time went into [Jarvis](/projects/jarvis), which went from "hand-tracking mouse" to something closer to the name. The rest was robotics debugging, getting Hyperform moving again, and one more round on the golf game.
+
+## Jarvis: the cursor that felt wrong, then the one that didn't
+
+Jarvis has run on a single camera for a while now. The cursor mapping was the weak part: hand position mapped straight to screen position needed a lot of arm movement and was twitchy at rest.
+
+The first attempt was **trackpad mode**. Treat the hand like a finger on a trackpad: relative motion, pointer acceleration (slow hand = precise, fast hand = far), a One-Euro filter for jitter, a closed fist as a clutch to reposition without moving the cursor, and the cursor frozen while a pinch is being recognized so clicks don't drag. It had 90 tests and was technically correct. I used it for ten minutes and rejected it. The acceleration curve was way too aggressive at speed, and relative motion fundamentally doesn't suit moving your whole hand. A trackpad works because your finger lifts. A hand in the air never lifts.
+
+The second attempt was **box mode**: a small virtual box that places itself where your hand is when tracking starts, mapped linearly onto the screen. Absolute, no acceleration, and if you push past the box's edge, the box slides with you. Same filter, same pinch freeze. After one round of tuning (a 24 by 15 cm box, a lower filter cutoff) it felt good, and it's the default now.
+
+Lesson I keep relearning: you can't test feel. Both modes passed every test. One of them was wrong in a way only a hand could tell me.
+
+On a separate branch there's an **eye-tracking cursor** prototype: iris position plus head pose from a face landmark model, a 13-dot calibration that fits a ridge regression and reports its own leave-one-out error, and gaze moves the cursor while a pinch clicks. Built, not calibrated yet.
+
+## Jarvis: "hey Jarvis"
+
+This was the big one. Jarvis has a voice now, and the brain behind it is Claude Code.
+
+The pipeline: an always-listening wake word ("hey Jarvis"), Whisper large-v3-turbo for transcription (primed with my vocabulary, because the thing I hate most in voice assistants is being misheard), an end-of-turn model so it doesn't cut me off mid-sentence, then a headless Claude Code session through the Agent SDK, then Kokoro for text-to-speech in a British butler voice. After it answers, there's a short follow-up window so you can keep talking without saying the wake word again.
+
+The point of using Claude Code instead of a plain chat model is context. It's the same setup I use at my desk: the same [second brain](/projects/secondbrain), the same memory, the same skills. "What's due tomorrow" or "play something for the gym" works by voice because those skills already existed.
+
+Three things I learned building it:
+
+- **Never read commands aloud.** A voice agent that can act needs approval for anything outward-facing, but "approve running bash with the following arguments" is unusable by ear. It gives a five-second plain-English summary of what it wants to do and waits for yes or no. A small fast model judges whether my answer was a yes, so "yeah go for it" works and "wait what" doesn't.
+- **Enforce policy where it can't be bypassed.** My first version enforced the voice permission rules in the SDK's permission callback. It turned out the allow rules in my normal desk settings were approving some tools before the callback ever saw them. Moving the policy into a pre-tool-use hook fixed it. If a safety rule can be shadowed by config, it isn't a rule.
+- **Echo cancellation is the hard part of barge-in.** I want to interrupt it mid-sentence. Without echo cancellation, it hears itself through the speakers. A quick spike with WebRTC's echo canceller took false speech detection on laptop speakers from 76 percent to 0. Interrupting over a soundbar still doesn't work, which is next.
+
+It also has a small local "room" server it controls: Mac volume and Spotify for now. It's designed so other devices plug into the same seam later, and the obvious one is on my desk: [dum-e](/projects/dum-e). The long-term plan is putting stereo vision on the arm and letting Jarvis drive it. A real Dum-E.
+
+## Debugging a robot from its logs
+
+For robotics this stretch, most of my work was diagnosis from recorded log files rather than code, which turned out to be a skill worth writing down. I'll keep it general.
+
+The most interesting case: at power-on, a seemingly random set of motor controllers would fail to show up. It looked like a software or startup timing problem, and that was the leading theory. Instead of guessing, I went through two dozen logs from five days and wrote down, per boot, exactly which devices were missing. The pattern wasn't random at all. Every missing device sat on one physical bus segment, a sensor on the same bus kept answering in every bad boot (so the bus itself wasn't down), and in one log a group of devices dropped out and came back together mid-match. That's a loose physical connection, not code. The fix belonged to a wrench, not a keyboard.
+
+Two smaller ones followed the same method. A shot that started landing long traced to a tuned constant that had drifted in a later commit, so the model was over-spinning by about 7 percent. And an action at the very start of an autonomous routine that didn't fire on a second run traced to an event scheduled at time zero that never re-fired when the same routine object was reused.
+
+The common thread: write down what the data says before deciding what the bug is. Every one of these had a plausible wrong theory that the logs disproved in minutes.
+
+I also set up a swerve drive template for our freshman team, with Choreo trajectories and an auto chooser that fills itself from whatever paths exist. It's [public](https://github.com/paarth-r/swerveTemplate). The one trap worth sharing: if you turn off alliance flipping so paths always run blue-side, you also have to pin the driver's perspective, or teleop controls invert on the red side after the first auto reset.
+
+## Hyperform, back on the bench
+
+[Hyperform](/projects/hyperform) had been sitting idle for longer than I'd like. The rig is back up. Following my own audit from September, I'm starting at the bottom: the first thing built was a raw recorder that captures synchronized camera footage, so every rep can be replayed and labeled later. Form feedback you can't measure against labeled reps is a guess, and I'd rather build the measuring stick first.
+
+## golfn: Pebble Beach on real lidar
+
+The [golf game's](/projects/golfn) Pebble Beach got a big fidelity upgrade. The terrain moved from 10 m elevation data to USGS 1 m bare-earth lidar, with an extra-fine 0.5 m grid on every green, so the greens now carry their actual contours. The 7th drops 9 meters from tee to green, like it does in real life. Bunkers are carved with a lip, a face, and a floor instead of painted on, and creeks and ponds sit in real beds under a water shader that reflects the sky. The 17th tee also moved back to where the scorecard says it should be.
+
+## Next two weeks
+
+Barge-in over the soundbar. Hyperform labeled reps. Get dum-e back on the desk.
