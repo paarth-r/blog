@@ -212,22 +212,6 @@ One Supabase backend sits behind the vanilla-JS web app and the React Native cli
 Live at [paarth-r.github.io/metanoia](https://paarth-r.github.io/metanoia), iOS build headed for TestFlight, source on [GitHub](https://github.com/paarth-r/metanoia).`,
   },
   {
-    id: 'campus',
-    title: 'Campus',
-    description:
-      'A single-file browser climbing game: webcam-pose or mouse control, a Verlet-ragdoll climber with bending limbs, stamina, and full persistent progression.',
-    href: 'https://paarth-r.github.io/Campus',
-    year: '2026',
-    tech: ['JavaScript', 'Canvas', 'MediaPipe', 'Game Physics'],
-    featured: false,
-    githubRepo: 'paarth-r/Campus',
-    abstract: `**Campus** is a browser climbing game built into a single \`index.html\`—no build step, [live on GitHub Pages](https://paarth-r.github.io/Campus). Reach for glowing holds and climb a scrolling wall as a physically-credible **Verlet ragdoll** with two-bone bending arms and legs; falls are caught by the rope at your last clipped quickdraw.
-
-Two control modes: **Campus** uses webcam pose (hands only, feet dangle—a hand grabs when its on-screen marker overlaps a hold), and **Klifur** is a pure mouse puzzle where you drag each limb onto holds. The mechanic is tuned for real climbing feel: input-gated leg drive, precision overlap-only grabs, a BotW-style stamina wheel that drains only while you're actively moving to a new hold.
-
-On top of the physics sits a full progression loop—a persistent profile with four skills (Grip, Endurance, Fingers, Reach) that literally feed the mechanic, V-graded routes with a soft skill gate, an economy, and a level editor with a draggable reference climber. Grades cap at V17, with a "really bro?" easter egg above V10.`,
-  },
-  {
     id: 'flowstate',
     title: 'Flowstate',
     description:
