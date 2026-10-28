@@ -1,0 +1,54 @@
+---
+title: "Two Weeks: Three Fixes I Measured and Threw Away, and What My Second Brain Turned Into"
+publishedAt: '2026-10-12'
+summary: "Sept 28-Oct 11. A sick week, three re-id fixes that ground truth said made things worse, one that shipped, cross-compiling a CUDA robot vision stack on a Mac, and a look at how my Claude-maintained second brain grew from a filing system into the thing that runs my day."
+---
+
+September 28 to October 11. I was out sick for the first three days of it, which mostly meant catching up afterward. The work that did happen was smaller, but it had a better ratio of things learned to lines written than anything in a while.
+
+## storePose: the fixes ground truth rejected
+
+Last post ended with me building an identity labelling tool instead of tuning the re-id. This is where it paid off.
+
+The problem I was chasing was ID churn on the cashier. One person standing behind a counter for fifteen minutes would pick up five different identities. I tried three fixes, each one reasonable on paper:
+
+- **An age-scaled hold.** The longer a track has existed, the longer it's allowed to go unmatched before being dropped. Measured against my labels: wrong merges went from 1 to 11, and the cashier still ended up with 5 IDs.
+- **An overlap gate.** Don't save an appearance crop when another person's box covers too much of it. It did improve purity, but it increased fragmentation by 34 percent. It traded one error for a bigger one.
+- **A re-id mask.** Ignore the occluded part of the crop when comparing appearances. Worse on both axes.
+
+None of them shipped. All three were treating symptoms. The labels pointed at the actual cause: at the counter, the cashier's track drifts onto a customer who's standing close, and from then on the cashier's saved appearances are contaminated with somebody else. That's a tracking problem at the moment of contact, not a re-id threshold problem, and no gating rule downstream can fix it.
+
+One fix did ship, for a different problem. A display stand near the counter kept getting detected as a person. People in frame have on average 14 visible keypoints; the stand has zero. Requiring at least 4 keypoints on large boxes removed 88 percent of the stand's false detections and 0.6 percent of real people, and frames with the stand counted as a person dropped 92 percent.
+
+Without the labels, I'd have shipped the age-scaled hold. It looked right in the clip I was staring at, and it would have quietly made merges ten times worse.
+
+## Cross-compiling a robot's vision stack on a Mac
+
+For robotics, I got the team's vision bundle (an aarch64 build with CUDA, targeting an NVIDIA Orin) building natively on my MacBook instead of needing a lab machine. The build system already supported it through a small Linux VM that runs the x86 CUDA tools under Rosetta. Getting it to actually work took two lessons:
+
+- **Build servers cache more than you think.** After switching branches mid-build, it failed on a checksum mismatch for the system root image. The long-running build server had cached the old branch's checksum. Shutting the server down fixed it. The error message pointed anywhere but there.
+- **Make big downloads resumable.** The sysroot is a 3.9 GB download, and my network was doing about half a megabyte a second and dropping. The build tool's downloader starts from zero on every failure. Downloading it separately with a resumable `curl -C -` into a local distfiles directory, then pointing the build at that, turned an impossible download into a slow one.
+
+Once cached, a full build takes about six minutes on the laptop.
+
+## The second brain, six months in
+
+Back in May I wrote about [building a second brain with Claude as the writer](/blog/second-brain): an Obsidian vault where I drop raw material into `raw/` and Claude writes and maintains everything in `wiki/`. That post described a filing system. What it turned into is closer to an operating system, and it changed enough that it deserves a [project page](/projects/secondbrain) of its own.
+
+What it looks like now:
+
+- **Every session writes itself down.** A `SessionEnd` hook archives the transcript and kicks off a background synthesis that reads what happened and files it: updates the relevant topic and people pages and appends to the log. I don't say "remember this" anymore. The log has hundreds of entries and the wiki is well over a hundred pages.
+- **Memory lives in the vault.** Claude Code's persistent memory directory points into the same vault, so the small facts it keeps about how I work (no emojis, single-line shell commands, commit often, README updates ship with the PR) are Obsidian notes I can read and edit, linked into the rest of the graph.
+- **Skills that read the real world.** There are skills that check my school's assignment platform for what's due and missing, pull posted grades, manage my calendar, and control music. The useful ones aren't the fancy ones. They're the ones that replace me opening four tabs.
+- **It runs without me.** A launchd job fires at 6:45 every morning and writes a school brief: what's due today, what's missing, what teachers posted. It's waiting when I wake up.
+- **It audits itself.** A lint pass sends parallel agents through the wiki looking for contradictions between pages, stale claims, orphan pages, and people who get mentioned constantly but have no page. A wiki nobody edits by hand still rots; it just rots in ways only a reader would notice.
+
+The biggest change isn't a feature. It's that context now carries across everything. A session about robotics knows what I said about my schedule in a session about school, because both got written to the same place. That's the part I underestimated in May: the value isn't storage, it's that every new conversation starts already knowing the last hundred.
+
+## claudemaxxing, still running
+
+All of the above runs on Claude Code, which has a rolling five-hour usage limit. [claudemaxxing](/projects/claudemaxxing), the terminal dashboard I built in July, is still open in a pane every day. It's the least glamorous thing I've made and the one I use the most. The pace math (my recent rate of use against the rate that lands at exactly 100 percent at reset) is what tells me whether to start the big refactor now or after the window rolls over. With background synthesis running after every session, knowing where I am in the window matters more than it did when I built it.
+
+## Next two weeks
+
+Look at the counter track-switch problem directly instead of through re-id. Get back to Hyperform, which I've let slide.
