@@ -11,9 +11,9 @@ export default function Page() {
           Paarth Rajpal
         </h1>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400">
-          {`I'm a student developer exploring computer vision, robotics, and AI — and their intersection. 
-          I spend a lot of my time building, trying to solve real-world problems through research and SOTA technologies
-          —whether it's improving how robots see the world, or using CV and AI to make fitness more accessible.
+          {`I'm a student developer exploring computer vision, robotics, and AI — and their intersection.
+          I spend most of my time building: CV and AI to make fitness more accessible, a robot arm I'm teaching to
+          see and feel, a voice-and-gesture JARVIS for my desk, and the Claude-run second brain that ties it all together.
           I'm always experimenting, learning, and striving to turn ideas into things that actually work.`}
         </p>
       </div>
@@ -42,8 +42,8 @@ export default function Page() {
           Blog Posts
         </h2>
         <p className="mb-4 text-neutral-600 dark:text-neutral-400">
-          I write about computer vision, hand pose, AR, and building JARVIS-style interfaces. 
-          Full archive and CV research timeline on the blog.
+          A bi-weekly log of what I'm building — computer vision, robotics, and tools built on Claude —
+          plus deep dives on individual projects. Full archive and CV research timeline on the blog.
         </p>
         <BlogPosts limit={3} />
         <p className="mt-3">

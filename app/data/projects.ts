@@ -30,43 +30,51 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    id: 'metanoia',
-    title: 'Metanoia',
-    description:
-      'A social goal-tracking app built around a 30-day reset: daily non-negotiables, weekly targets, friends and groups, a live feed of ticks. Web + iOS on one Supabase backend.',
-    href: 'https://paarth-r.github.io/metanoia',
-    year: '2026',
-    tech: ['React Native', 'Expo', 'Supabase', 'Postgres RLS', 'PWA'],
-    featured: true,
-    githubRepo: 'paarth-r/metanoia',
-    updates: [
-      { date: '2026-08-30', text: 'App Store compliance built: in-app account deletion, block/report/filter moderation with a review queue, privacy policy. Email confirmation dropped in favor of one-screen signup.' },
-      { date: '2026-08-29', text: 'Days calendar with daily todos on both clients. A repeating todo is one row plus one tick row per date, so history stays immutable and late ticks just work.' },
-      { date: '2026-08-26', text: 'Native **React Native / Expo** app at full parity with the web, then the leather-ledger redesign, group chat with images, feed reactions, invites, and per-group silence.' },
-      { date: '2026-08-25', text: 'Went from a single static page to a **multi-user Supabase app** in one day: RLS privacy tiers, friends, groups with invite codes, realtime feed, public profiles.' },
-    ],
-    abstract: `**Metanoia** is a habit tracker that became a social app. It started on August 25 as one static HTML file for my own 30-day reset (seven daily non-negotiables, weekly targets, a ledger that fills black on perfect days). By the end of the week it was a multi-user app: friends, groups with chat and invite codes, a realtime feed of everyone's ticks with reactions, public profiles, and a Days calendar with daily todos.
-
-One Supabase backend sits behind the vanilla-JS web app and the React Native client. Privacy is enforced in **row-level security**, not in the clients: a plan is private, friends-only, or public, and the anonymous REST API returns exactly what a stranger may see. No service-role key ships anywhere. Account deletion, blocking, reporting, and a banned-term filter are built in for App Store review.
-
-Live at [paarth-r.github.io/metanoia](https://paarth-r.github.io/metanoia), iOS build headed for TestFlight, source on [GitHub](https://github.com/paarth-r/metanoia).`,
-  },
-  {
     id: 'jarvis',
     title: 'Jarvis',
     description:
-      'An event-driven runtime that turns a stereo camera pair into a 3D hand interface—MediaPipe tracking triangulated to metric 3D, driving the cursor, pinch-click, and pointing.',
+      'A hands-free interface for my computer: hand tracking drives the cursor and clicks, and a voice agent ("hey Jarvis") runs a headless Claude Code with my whole second brain and talks back.',
     href: 'https://github.com/paarth-r/jarvis',
     year: '2026',
-    tech: ['Python', 'Stereo Vision', 'MediaPipe', 'asyncio', 'Triangulation'],
+    tech: ['Python', 'MediaPipe', 'Claude Agent SDK', 'Whisper', 'Kokoro TTS', 'asyncio'],
     featured: true,
     image: '/images/jarvis.png',
     githubRepo: 'paarth-r/jarvis',
-    abstract: `**Jarvis** is a gesture-based human-computer interaction system: two stereo cameras track your hand in 3D—MediaPipe hand landmarks triangulated to metric world coordinates—and pinch gestures drive the mouse cursor, fire keyboard actions, and point/raycast at the screen. Control the computer with your hand in the air.
+    updates: [
+      { date: '2026-10-25', text: '**Voice agent:** "hey Jarvis" wake word, Whisper large-v3-turbo with vocabulary priming, end-of-turn detection, a headless Claude Code brain via the Agent SDK, Kokoro TTS. Plain-English approvals for outward actions, policy enforced in a pre-tool-use hook. Controls Mac audio and Spotify through a local room server.' },
+      { date: '2026-10-21', text: 'Cursor rework: trackpad mode (relative + acceleration) built and rejected on feel; **box mode** (a self-placing 24x15 cm hand box mapped linearly to the screen, One-Euro filtered, pinch freeze) is the new default. Eye-tracking cursor prototype on a branch.' },
+      { date: '2026-06-06', text: 'Core runtime shipped: stereo 3D hand tracking to cursor, pinch-click, and pointing at ~51 fps.' },
+    ],
+    abstract: `**Jarvis** started as a gesture-based human-computer interaction system: two stereo cameras track your hand in 3D—MediaPipe hand landmarks triangulated to metric world coordinates—and pinch gestures drive the mouse cursor, fire keyboard actions, and point/raycast at the screen. Control the computer with your hand in the air.
 
 The architecture is **event-driven** (asyncio pub/sub on the main thread): per-camera hand-pose modules feed a stereo-fusion module, a gesture FSM, and an action dispatcher, with a live visualizer overlaying 2D keypoints and a matplotlib 3D hand skeleton. A file/video replay path lets the whole pipeline run with no rig attached, plus stereo undistortion and a pointing gesture.
 
-Packaged, public, and documented—MIT-licensed on [GitHub](https://github.com/paarth-r/jarvis) (\`pip install -e .\` + a \`jarvis\` console command), 60 tests passing. A sibling to Hyperform: same stereo rig and MediaPipe patterns, hands instead of full body.`,
+The cursor now runs well on a single camera in **box mode**: a small virtual box that anchors where your hand appears, mapped linearly onto the screen, so small hand motions cover the whole display without the twitchiness of a raw mapping.
+
+In October it got a voice. Say **"hey Jarvis"** and an always-on pipeline (openWakeWord, Whisper large-v3-turbo, an end-of-turn model, Kokoro TTS) hands your request to a headless **Claude Code** session through the Agent SDK, with the same memory, skills, and [second brain](/projects/secondbrain) I use at my desk. Anything outward-facing gets a short spoken summary and waits for a yes. Next: barge-in with echo cancellation, and eventually giving it control of [dum-e](/projects/dum-e).
+
+MIT-licensed on [GitHub](https://github.com/paarth-r/jarvis).`,
+  },
+  {
+    id: 'secondbrain',
+    title: 'secondbrain',
+    description:
+      'A personal knowledge base that Claude writes and I never edit: every session files itself into an Obsidian wiki, skills read my real accounts, and a morning job briefs me before I wake up.',
+    href: '/blog/second-brain',
+    year: '2026',
+    tech: ['Claude Code', 'Obsidian', 'Hooks', 'Skills', 'launchd', 'Python'],
+    featured: true,
+    updates: [
+      { date: '2026-10-25', text: 'Now the brain behind [Jarvis](/projects/jarvis) too: the voice agent runs a headless Claude Code against the same vault, memory, and skills.' },
+      { date: '2026-10-19', text: 'Self-audit pass: parallel agents swept the wiki for contradictions, stale claims, orphan pages, and people mentioned without a page.' },
+      { date: '2026-09-24', text: 'Unattended 6:45 AM brief via launchd: what is due, what is missing, what teachers posted.' },
+      { date: '2026-05-12', text: 'Wrote up the original design: immutable `raw/`, Claude-owned `wiki/`, append-only log.' },
+    ],
+    abstract: `**secondbrain** is an Obsidian vault where I'm the source of raw material and Claude is the librarian. Journals, clips, and documents go into an immutable \`raw/\` folder; Claude writes and maintains everything in \`wiki/\` (goals, people, projects, reflections), cross-linked so structure emerges from the graph instead of folders. I never edit a wiki page by hand.
+
+Six months in, it's less a filing system than an operating layer. A \`SessionEnd\` hook archives every Claude Code session and runs a background synthesis that files what happened, so nothing needs to be "remembered" on purpose. Claude Code's persistent memory lives inside the vault as ordinary linked notes. Skills read the real world (school assignments and grades, calendar, music), a launchd job writes a brief every morning, and periodic lint passes audit the wiki for rot. The result is that every new conversation starts already knowing the last hundred.
+
+The original design is written up in [Building a Second Brain with Claude as the Writer](/blog/second-brain); the six-month update is in the [Oct 12 log](/blog/update-2026-10-12).`,
   },
   {
     id: 'hyperform',
@@ -79,6 +87,7 @@ Packaged, public, and documented—MIT-licensed on [GitHub](https://github.com/p
     featured: true,
     image: '/images/hyperform.png',
     updates: [
+      { date: '2026-10-21', text: 'Rig back up. Starting from data: a raw synchronized recorder so every rep can be replayed and labeled before any new feedback logic.' },
       { date: '2026-09-07', text: 'Full audit of the correction engine before rebuilding motion grading: nine findings, each cited to file and line. The biggest is that 592 tests pass and none of them answers "is this rep bad" — building the labeled corpus and harness first.' },
       { date: '2026-08-13', text: 'Kiosk restart on the real target: a 27" portrait display (1440x2560). QR download dialog shipped; BLE-proximity fast sign-in designed.' },
       { date: '2026-07-27', text: 'Rep-mechanics merged to main: motion-segmented reps with a personal baseline stage, validated on the live rig against a real bicep-curl session.' },
@@ -104,6 +113,7 @@ Solo-built across vision, hardware, and app; 592 tests on main. Current work is 
     featured: true,
     githubRepo: 'paarth-r/Dum-E',
     updates: [
+      { date: '2026-10-25', text: 'Next direction: stereo vision on the arm and [Jarvis](/projects/jarvis) driving it by voice — a real Dum-E.' },
       { date: '2026-09-14', text: '**Force sensing, slice 1:** gravity torques from the model, `read_loads()` on every backend, a `ForceEstimator` mapping residual load to an end-effector wrench, and `dume feel`. 219 tests; hardware calibration sweep is next. End-effector camera stack removed in favor of a fixed desk camera.' },
       { date: '2026-08-09', text: 'On-hardware teleop overhaul: 2.5x hold-RB turbo (the anti-lockout leash was the real speed cap), 1:1 gripper after clearing a stored servo velocity cap, hand-guided macros on the digit keys, latched triggers, limp-gripper toggle.' },
       { date: '2026-07-05', text: 'Physical grasp sim: the PyBullet arm is now the real backend the controller drives, and grasping is emergent from friction and bounded gripper force instead of a magnet.' },
@@ -163,6 +173,47 @@ There's no public API for this — Claude Code only surfaces the rate-limit perc
 Also has a GitHub-style usage heatmap that persists permanently across restarts, and ninety philosopher quotes — one pool per pace state — each with a fake anachronistic tech job title. [On GitHub](https://github.com/paarth-r/claudemaxxing).`,
   },
   {
+    id: 'golfn',
+    title: 'golfn',
+    description:
+      'A multiplayer 3D golf game in the browser, including a Pebble Beach built from OpenStreetMap and USGS lidar: real fairways, real green contours, real coastline.',
+    href: 'https://golfn-steel.vercel.app',
+    year: '2026',
+    tech: ['JavaScript', 'Three.js', 'WebRTC', 'GIS', 'Supabase'],
+    featured: false,
+    updates: [
+      { date: '2026-10-24', text: 'Pebble Beach rebuilt on USGS 1 m bare-earth lidar with 0.5 m grids on every green; carved bunkers, creeks and ponds in real beds, a reflective water shader.' },
+      { date: '2026-09-18', text: 'Course picker and the Pebble Beach replica: every hole, bunker, cart path, and the coastline from OpenStreetMap; the Lodge clubhouse and the real practice range.' },
+      { date: '2026-09-14', text: 'Playable in a day: terrain, 18 holes, club physics, walk or cart, peer-to-peer parties of up to five, then a walkable clubhouse with upgrades and outfits.' },
+    ],
+    abstract: `**golfn** is a 3D golf game that runs in a browser tab, no build step: Three.js for rendering, PeerJS for peer-to-peer parties of up to five (with a Supabase relay when networks won't connect directly), twelve clubs, a drivable cart, and a clubhouse hub with a pro shop, lockers, stats, and a driving range.
+
+The centerpiece is **Pebble Beach**. Nothing is hand-modeled: fairways, greens, tees, bunkers, cart paths, the coastline, and the Lodge footprint come from OpenStreetMap, and the ground is USGS 3DEP bare-earth lidar at 1 m, with 0.5 m grids on the greens so their real contours putt the way they should. Where the map data is wrong (a hole drawn from a forward tee, a green that isn't mapped), the build corrects it against the scorecard. [Play it here](https://golfn-steel.vercel.app).`,
+  },
+  {
+    id: 'metanoia',
+    title: 'Metanoia',
+    description:
+      'A social goal-tracking app built around a 30-day reset: daily non-negotiables, weekly targets, friends and groups, a live feed of ticks. Web + iOS on one Supabase backend.',
+    href: 'https://paarth-r.github.io/metanoia',
+    year: '2026',
+    tech: ['React Native', 'Expo', 'Supabase', 'Postgres RLS', 'PWA'],
+    featured: false,
+    githubRepo: 'paarth-r/metanoia',
+    updates: [
+      { date: '2026-10-19', text: 'Shelved. It did its job for the 30 days; I track goals by hand now.' },
+      { date: '2026-08-30', text: 'App Store compliance built: in-app account deletion, block/report/filter moderation with a review queue, privacy policy. Email confirmation dropped in favor of one-screen signup.' },
+      { date: '2026-08-29', text: 'Days calendar with daily todos on both clients. A repeating todo is one row plus one tick row per date, so history stays immutable and late ticks just work.' },
+      { date: '2026-08-26', text: 'Native **React Native / Expo** app at full parity with the web, then the leather-ledger redesign, group chat with images, feed reactions, invites, and per-group silence.' },
+      { date: '2026-08-25', text: 'Went from a single static page to a **multi-user Supabase app** in one day: RLS privacy tiers, friends, groups with invite codes, realtime feed, public profiles.' },
+    ],
+    abstract: `**Metanoia** is a habit tracker that became a social app. It started on August 25 as one static HTML file for my own 30-day reset (seven daily non-negotiables, weekly targets, a ledger that fills black on perfect days). By the end of the week it was a multi-user app: friends, groups with chat and invite codes, a realtime feed of everyone's ticks with reactions, public profiles, and a Days calendar with daily todos.
+
+One Supabase backend sits behind the vanilla-JS web app and the React Native client. Privacy is enforced in **row-level security**, not in the clients: a plan is private, friends-only, or public, and the anonymous REST API returns exactly what a stranger may see. No service-role key ships anywhere. Account deletion, blocking, reporting, and a banned-term filter are built in for App Store review.
+
+Live at [paarth-r.github.io/metanoia](https://paarth-r.github.io/metanoia), iOS build headed for TestFlight, source on [GitHub](https://github.com/paarth-r/metanoia).`,
+  },
+  {
     id: 'campus',
     title: 'Campus',
     description:
@@ -182,12 +233,12 @@ On top of the physics sits a full progression loop—a persistent profile with f
     id: 'flowstate',
     title: 'Flowstate',
     description:
-      'A focus app designed to fix attention spans through incentivization, gamification, and a strict five-minute daily limit. Launch soon.',
+      'A focus app designed to fix attention spans through incentivization, gamification, and a strict five-minute daily limit. Shelved before launch.',
     year: '2025',
     tech: ['React Native', 'Supabase', 'Stripe', 'Productivity'],
     featured: false,
     abstract: `**Flowstate** is a focus app built to repair attention spans. It uses **incentivization** and **gamification** to make deep work rewarding—and you can only use it for **five minutes a day**.
-That's all it needs. Launch soon.`,
+That's all it needs. Shelved before launch.`,
     updates: [
       { date: '2025-02-05', text: 'Flowstate in development—launch soon.' },
     ],
