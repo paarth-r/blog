@@ -1,0 +1,54 @@
+---
+title: "Two Weeks: A Golf Game, a DJ App That Spotify Won't Allow, and Labels Before Fixes"
+publishedAt: '2026-09-28'
+summary: "Sept 14-27. A multiplayer browser golf game with a real Pebble Beach built from map data and elevation, a DJ mixer designed around what the Spotify API actually permits, a 30-minute explainability audit that found a broken cancer classifier, and a re-id problem I stopped tuning until I had ground truth."
+---
+
+I'm going to start writing these every two weeks. Not a polished post per project, just what I built, what broke, and what I learned, while it's still fresh. This one covers September 14 to 27.
+
+The thread running through all of it, which I only noticed writing this up: almost every good decision these two weeks was me finding out what's actually true before building on top of it. What the API allows, what the model actually does, what the right answer actually is.
+
+## golfn: a golf game, then a real golf course
+
+[golfn](https://golfn-steel.vercel.app) is a 3D golf game that runs in a browser tab. No build step, just Three.js and PeerJS off a CDN. The first day produced a playable 18: terrain, ball physics with real club distances, walking and a drivable cart, an aim-and-swing loop, and parties of up to five over peer-to-peer WebRTC with a link you send to friends. By the end of the week it had a clubhouse you can walk around in (front desk, pro shop upgrades, lockers for outfits, a stats board, a driving range), local profiles, and a Supabase relay for when two people's networks won't connect directly. There's also a hidden mode where you swap the cart for a jumping, boosting rocket car and hit the ball like a soccer ball. Pinches count as strokes.
+
+The part I'm proudest of is the second course. Pebble Beach isn't hand-modeled. Every fairway, green, tee box, bunker, cart path, and the coastline is pulled from OpenStreetMap polygons, and the ground heights come from USGS elevation data. A script turns all of that into terrain, paints the surfaces, and puts the Lodge clubhouse beside the first tee. The practice range is the real one across 17-Mile Drive, and the front desk drives you there and back. When the 7th tee looks down at the ocean, it's because the real elevation does.
+
+Two lessons from it. First, mapped data is wrong in small specific ways: OSM draws the 17th hole from a forward tee, and the 11th green isn't mapped at all. You have to check each hole against the scorecard. Second, browsers freeze `requestAnimationFrame` in hidden tabs, so automated testing of a game loop needs explicit test hooks to step the simulation, or every test quietly measures nothing.
+
+## twodeck: verify the API before you design the app
+
+I wanted a DJ app that could mix my Spotify library: two decks, crossfade, beatmatch, automix. Before writing any of it I checked what Spotify actually lets you do, and the answer is: not that. The Web Playback SDK is control-only, so you never touch the audio samples. One account gets one stream, so two decks can't play at once. The BPM and audio-analysis endpoints have been shut off for new apps. And the developer terms explicitly ban segueing or mixing tracks.
+
+So twodeck became a hybrid. Spotify is your library and a single live stream. Local audio files are real Web Audio decks with BPM detection, and automix handles overlaps and handoffs between a local deck and the Spotify stream. The mixing math and BPM detection are pure functions with their own tests.
+
+If I'd skipped the check, I'd have built two Spotify decks, found the second one silently pausing the first, and lost a day. Ten minutes of reading the API docs and terms decided the whole architecture.
+
+## canc-id: a 30-minute audit that found a broken model
+
+This one was a timed sprint: thirty minutes to build an explainability audit of open-source cancer classifiers. One breast histopathology model (a ResNet-50 trained on BreakHis) and one oral cancer model (a DenseNet-121). The pipeline takes DICOMs in, runs Grad-CAM, Grad-CAM++, and SHAP, and scores how faithful each explanation is and how much the methods agree with each other. It has a CLI, a Streamlit app, and a five-page paper draft.
+
+Two findings, both more interesting than "it works":
+
+- **The oral model is broken.** Its published weights predict the same class for every image, on two separate datasets. Any heatmap it produces is explaining a constant. I kept it as a negative control: an explanation method that still produces a confident, plausible-looking heatmap for a model that predicts nothing is telling you something about the method.
+- **The explanation methods don't agree.** Grad-CAM and Grad-CAM++ correlate around 0.5 with each other, but with SHAP they correlate between 0.02 and 0.07. Basically zero. If two tools claim to show "where the model looked" and they disagree that much, at least one isn't showing that.
+
+Sixteen images isn't a result, it's a smoke test. The next step is a full-size run on a real GPU, positioned against the existing faithfulness benchmarks (ROAR, ROAD, RISE-style deletion and insertion).
+
+## storePose: shipping a demo, then stopping to label
+
+[storePose](/projects/storepose), my store analytics pipeline from the summer, had two pieces of work.
+
+The first was turning the demo site into something someone else can host. Upload a clip, draw zones, get back tracked output. It worked on my laptop, but "works on my laptop" and "safe to put in front of strangers" are different bars. The gaps: no TLS, a rate limiter that keyed on the raw socket address (which breaks the moment you put a proxy in front of it, since every request then comes from the proxy), no automatic data retention, no CUDA option, and a first job that downloaded a gigabyte of model weights. I fixed each, packaged it as a Docker image with the weights baked in and a Caddy reverse proxy for TLS, ran a real clip through the container end to end, and got CI building the image on every merge.
+
+The second was more interesting. The identity re-linking (deciding that the person who just walked back into frame is the same one who left) had a contamination problem. I traced it to a three-step chain: the gallery of saved appearances admitted crops even when the person was half-hidden behind someone else, the diversity rule kept the weirdest crops around forever, and scoring by best single match meant one bad crop could match a total stranger. I had four candidate fixes.
+
+Then I realized I couldn't measure any of them. Every "ground truth" I had was the pipeline's own output. Labels made from tracker IDs can't tell you the tracker is wrong. So instead of tuning, I built the measurement: a harvester that pulled 53,000 detections from 15 minutes of footage, a local labelling tool that groups them into tracklets and asks me "same person or not" (pairs that appear in the same frame are auto-excluded), and a benchmark that replays every gating setting against my labels. The labelling is slow and boring. It's also the only way any future fix gets a number instead of a feeling.
+
+## dum-e
+
+The arm has been away, so [dum-e](/projects/dum-e) is holding where the last post left it: force sensing built and tested in simulation, not yet on hardware. I removed the end-effector camera stack to make room for a fixed camera over the desk.
+
+## Next two weeks
+
+Finish the re-id labels and run the benchmark. Get canc-id onto a real GPU. Find out how much of the Pebble terrain survives a higher-resolution elevation source.
