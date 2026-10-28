@@ -1,0 +1,98 @@
+---
+title: "golfn: Building Pebble Beach in a Browser From Lidar and Map Data"
+publishedAt: '2026-10-27'
+summary: "A multiplayer 3D golf game with no build step, and a Pebble Beach that nobody modeled by hand: every fairway and bunker from OpenStreetMap, every green contour from 1 m USGS lidar, bunkers carved from signed distance fields, and creeks draped on the terrain so they run downhill."
+---
+
+![Pebble Beach in golfn, looking across the coastline holes](/images/golfn/coast-aerial.jpg)
+
+[golfn](https://golfn-steel.vercel.app) is a 3D golf game that runs in a browser tab. You walk or drive a cart, play with up to five friends over peer-to-peer WebRTC, and hang out in a clubhouse with a pro shop and a driving range. It has no build step. It's vanilla JavaScript, Three.js and PeerJS from a CDN, served as static files.
+
+The game itself took a day. The part I want to write about is the second course. Pebble Beach in golfn isn't modeled by hand. A script downloads the real course from public data and turns it into a playable world, and the hard part was making that data play like the real place.
+
+## Where the course comes from
+
+Everything comes from two public sources:
+
+- **OpenStreetMap** for the shapes. Every fairway, green, tee, bunker, cart path, pond, the coastline, and the footprint of the Lodge are polygons in OSM, pulled from the Overpass API and converted to local meters.
+- **USGS 3DEP lidar** for the ground. This is the bare-earth elevation model from the national lidar program, sampled at 1 meter. "Bare earth" means the returns from trees and buildings have been filtered out, so you get the ground itself.
+
+![Hillshade of the 3DEP lidar under the course, rendered straight from the game's height grid](/images/golfn/lidar-hillshade.jpg)
+
+*The game's own height grid as a hillshade, north up. The cliffs, the ravines running down to the water, and even the neighborhood streets are all in there.*
+
+One script, `course_build.py`, does the whole pipeline: query Overpass, download lidar tiles from the USGS ImageServer (with retries, because it drops connections), stitch the coastline, fit the holes to the championship scorecard, sample the heights, and write two files the game loads: the polygons as a JS module and the height grids as one binary blob.
+
+## Version one was wrong in instructive ways
+
+The first version used the older 10 to 15 m national elevation grid. It looked fine from far away and played wrong up close. It put the 18th tee in the ocean, and it smoothed the 7th, a famous little par 3 that drops down to a green on the rocks, into a gentle slope.
+
+Switching to 1 m lidar fixed both, but raw lidar has its own problem: a few centimeters of noise. On a fairway you'd never notice. On a green, a few centimeters is exactly the size of real break, so noise reads as fake slopes that move your putt. The fix is a 0.8 m Gaussian blur on the green grids only, enough to kill the noise without flattening the real contours.
+
+The data itself was wrong in small, specific ways too. OSM draws the 17th from a forward tee (212 yards mapped vs 208 on the card), so the build moves it back. The 11th green isn't in OSM at all, so its outline is generated around the end of the hole line, though its heights are still real lidar. Every hole got checked against the scorecard.
+
+## Two resolutions of ground
+
+A 1 m grid over the whole map is far too much geometry for a browser. So the heights are stored at two resolutions:
+
+- A **3 m grid** for the whole course as 16-bit centimeters (954 by 847 samples).
+- A **0.5 m patch** on every green and its surrounds as 16-bit millimeters above that patch's lowest point.
+
+The whole thing is a 2 MB binary file. Greens are no longer flattened: their slopes are the real ones.
+
+![The 7th green and its surrounds at 0.5 m with 10 cm contours](/images/golfn/green-7-contours.jpg)
+
+*The 7th green's patch with 10 cm contours. The bowls around the edges are the greenside bunkers.*
+
+The important detail is that the game's height lookup reads the fine data first. Balls roll on exactly the surface you see. If physics and rendering read different terrain, the ball floats or sinks a few centimeters, and on a green that's the difference between a putt that drops and one that lips out.
+
+Meshes follow the same idea. The base terrain is 8 m. Wherever there's detail (greens, bunkers, tees, pond banks), 32 m tiles at 0.8 m resolution sit on top. Where a fine tile meets a coarse one, the fine surface blends into the coarse one over 3 m so the seam closes exactly, and coarse vertices fully covered by fine tiles sink out of sight.
+
+![The 7th green on its point above the water](/images/golfn/seventh-green.jpg)
+
+## Bunkers from distance fields
+
+OSM gives you a bunker as a flat polygon. A real bunker has a turf lip, a steep sand face, and a floor almost a meter down. Painting a tan blob on the terrain looks like a decal.
+
+The fix is signed distance fields. All the polygons get rasterized with ID colors into a 4096 px image, and an exact Euclidean distance transform (Felzenszwalb's algorithm) computes, for every pixel, the distance to the nearest sand, green, water, and fairway edge. That goes into one RGBA texture with a channel per surface. A 2 px blur rounds off the pixel stairs.
+
+With distance-to-edge available everywhere, a lot of things become one-liners:
+
+- **Bunker shape:** the depth is a function of distance inside the edge, giving a lip, then a face, then a floor about 0.9 m down.
+- **Shorelines:** pond and sea beds shelve away from the shore instead of dropping off a cliff.
+- **The ground shader:** sand and green edges stay crisp at any distance, with sand grain and rake lines, a crosshatched green with a collar, and wet banks near water.
+
+![Carved bunkers around a green](/images/golfn/carved-bunkers.jpg)
+
+## Water that runs downhill
+
+The first water was flat planes at one level per pond, which works for ponds and fails badly for creeks. A creek on a hillside at one height floats above the bank at the bottom and is buried at the top.
+
+Lidar actually returns off the water surface, so the fix is to drape the water mesh on the lidar itself. Creeks follow the terrain downhill. Ponds sit at the 20th percentile of the lidar heights inside them, which is the surface, not the reeds around it. The ocean gets clamped below sea level with a flat sea plane.
+
+The water shader is deliberately calm: faint slow wave normals, Fresnel sky reflection, a sun glint, lighter and clearer water near the shore, and a steady foam line that turns into whitewater on the ocean.
+
+![The 8th hole's cliffs, straight from the lidar](/images/golfn/eighth-cliffs.jpg)
+
+*Nobody modeled these cliffs. That's the lidar.*
+
+## The rest of the game
+
+Some other things under the hood:
+
+- **Ball physics** is its own module with no browser dependencies, so it runs in Node for tuning. It covers gravity, quadratic drag against the wind, Magnus lift from a spin axis (backspin tilted by your swing error for hooks and slices), spin decay, surface-specific bounce and rolling friction, and slope gravity. Club distances are a one-line Node script away.
+- **The landing marker tells the truth.** The yellow ring shows where your shot lands with no wind, simulated by the same integrator as the real shot. Wind applies only to the real one.
+- **Networking** is PeerJS signaling plus WebRTC data channels, with Google STUN and a public TURN server for strict networks. If the peer link doesn't open within 8 seconds, it falls back to a Supabase Realtime relay over a WebSocket. The chat shows each player's connection path (direct, NAT-punched, or relayed).
+- **Testing a game loop** has one trap: browsers freeze `requestAnimationFrame` in hidden tabs, so an automated test of a backgrounded game measures nothing. The game exposes hooks to step the simulation manually.
+
+Things I tried and removed: instanced grass blades around the camera. They looked nice and cost too much for what they added.
+
+![Looking up the 18th along the coastline](/images/golfn/eighteenth-coast.jpg)
+
+## What I'd take from it
+
+Public geodata is good enough to build a real place, but only if you treat it as measurements with errors, not as truth. The 1 m lidar is incredible and still needed smoothing on greens. OSM is detailed and still had a hole drawn from the wrong tee and a missing green. The scorecard and the real elevation of the 7th were the ground truth I checked everything against.
+
+And the biggest single win was making physics and rendering read the same data. Every bug that made the course feel fake traced back to two parts of the program disagreeing about where the ground was.
+
+[Play it here](https://golfn-steel.vercel.app). Map data © OpenStreetMap contributors (ODbL); elevation from USGS 3DEP (public domain).
